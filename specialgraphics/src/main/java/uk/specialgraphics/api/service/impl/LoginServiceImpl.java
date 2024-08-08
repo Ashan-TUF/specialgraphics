@@ -13,6 +13,7 @@ import uk.specialgraphics.api.repository.GeneralUserProfileRepository;
 import uk.specialgraphics.api.security.JwtTokenUtil;
 import uk.specialgraphics.api.security.JwtUserDetailsServicePassword;
 import uk.specialgraphics.api.service.LoginService;
+import uk.specialgraphics.api.utils.VarList;
 
 @Service
 @Slf4j
@@ -24,7 +25,7 @@ public class LoginServiceImpl implements LoginService {
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
     @Override
-    public UserLoginResponse userLoginWithPassword(UserLoginRequset request, String remoteAddr) {
+    public UserLoginResponse userLoginWithPassword(UserLoginRequset request) {
         UserLoginResponse userLoginResponse = new UserLoginResponse();
 
         GeneralUserProfile gup = generalUserProfileRepostory.getGeneralUserProfileByEmail(request.getEmail());
@@ -33,7 +34,6 @@ public class LoginServiceImpl implements LoginService {
 
                 UserDetails userDetails = userDetailsServicePassword.loadUserByUsername(request.getEmail());
 
-                //  authenticate(request.getEmail(), request.getPassword());
                 String token = null;
                 try {
                     token = jwtTokenUtil.generateToken(userDetails);
@@ -47,12 +47,12 @@ public class LoginServiceImpl implements LoginService {
                 userLoginResponse.setGup_type(gup.getGupType().getName());
             } else {
                 log.warn("password incorrect.");
-                throw new ErrorException("incorrect password.", "Wrong password.Try again or click Forgot password to reset it.");
+                throw new ErrorException("incorrect password.", VarList.RSP_NO_DATA_FOUND);
             }
 
         } else {
             log.warn("user not found");
-            throw new ErrorException("User not found", "This username is not registered as a user.");
+            throw new ErrorException("User not found", VarList.RSP_NO_DATA_FOUND);
         }
 
         return userLoginResponse;

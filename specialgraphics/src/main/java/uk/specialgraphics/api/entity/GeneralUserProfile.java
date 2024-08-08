@@ -46,7 +46,5 @@ public class GeneralUserProfile {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "gup_type_id")
     private GupType gupType;
-    @Column(name = "country")
-    private String country;
 
 }
