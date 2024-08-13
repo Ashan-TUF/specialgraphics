@@ -25,13 +25,9 @@ public class CourseServiceImpl implements CourseService {
     @Autowired
     private UserProfileService userProfileService;
     @Autowired
-    private CourseCategoryRepository courseCategoryRepository;
-    @Autowired
     private CourseRepository courseRepository;
     @Autowired
     private ApprovalTypeRepository approvalTypeRepository;
-    @Autowired
-    private CourseKeywordRepository courseKeywordRepository;
 
     private SuccessResponse successResponse = new SuccessResponse();
     @Override
@@ -45,8 +41,8 @@ public class CourseServiceImpl implements CourseService {
                     final String courseTitle = courseRequest.getCourse_title();
                     final MultipartFile image = courseRequest.getImg();
                     final MultipartFile video = courseRequest.getTest_video();
-                                        final int categoryId = courseRequest.getCourse_category_id();
-                    final String[] keyword = courseRequest.getKeywords();
+
+
                     if (courseTitle.isEmpty() || courseTitle == null) {
                         throw new ErrorException("Please add a course title", VarList.RSP_NO_DATA_FOUND);
                     } else if (image == null || image.isEmpty()) {
@@ -57,12 +53,8 @@ public class CourseServiceImpl implements CourseService {
                         throw new ErrorException("Invalid image file type or extension. Only image files are allowed.", VarList.RSP_NO_DATA_FOUND);
                     } else if (!video.getContentType().startsWith("video/") || !video.getOriginalFilename().matches(".*\\.(mp4|avi|mov|mkv|webm|wmv)$")) {
                         throw new ErrorException("Invalid video file type. Only video files are allowed.", VarList.RSP_NO_DATA_FOUND);
-                    } else if (categoryId == 0) {
-                        throw new ErrorException("Please add a category", VarList.RSP_NO_DATA_FOUND);
-                    } else if (keyword.length != 5) {
-                        throw new ErrorException("Please add a keyword", VarList.RSP_NO_DATA_FOUND);
-                    } else {
-                        CourseCategory courseCategory = courseCategoryRepository.getCourseCategoryById(categoryId);
+                    }else {
+
                         Course getCourse = courseRepository.getCourseByCourseTitle(courseRequest.getCourse_title());
                         if (getCourse == null) {
                             Course course = new Course();
@@ -89,11 +81,7 @@ public class CourseServiceImpl implements CourseService {
                             course.setCreatedDate(new Date());
                             String customId = generateCustomUUID();
                             course.setReferralCode(customId);
-                            if (courseCategory != null) {
-                                course.setCourseCategory(courseCategory);
-                            } else {
-                                throw new ErrorException("Course category not available", VarList.RSP_NO_DATA_FOUND);
-                            }
+
                             ApprovalType Courseapproval = approvalTypeRepository.getApprovalTypeById(1);
                             if (Courseapproval != null) {
                                 course.setApprovalType(Courseapproval);
@@ -104,12 +92,6 @@ public class CourseServiceImpl implements CourseService {
                             course.setIsPaid(1);
                             course.setIsOwned((byte) 0);
                             courseRepository.save(course);
-                            for (int i = 0; i < keyword.length; i++) {
-                                CourseKeyword courseKeyword = new CourseKeyword();
-                                courseKeyword.setName(keyword[i]);
-                                courseKeyword.setCourse(course);
-                                courseKeywordRepository.save(courseKeyword);
-                            }
 
                             SuccessResponse successResponse = new SuccessResponse();
 

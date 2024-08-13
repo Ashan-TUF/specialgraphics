@@ -11,7 +11,4 @@ public class CourseRequest {
     private Double default_price;
     private MultipartFile img;
     private MultipartFile test_video;
-    private int course_category_id;
-    private int course_sub_category_id;
-    private String[] keywords;
 }

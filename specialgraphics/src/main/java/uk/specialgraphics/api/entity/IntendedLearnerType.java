@@ -10,8 +10,8 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Table(name = "course_keywords")
-public class CourseKeyword {
+@Table(name = "intended_learner_type")
+public class IntendedLearnerType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -19,8 +19,4 @@ public class CourseKeyword {
 
     @Column(name = "name", length = 45)
     private String name;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "course_id", nullable = false)
-    private Course course;
 }

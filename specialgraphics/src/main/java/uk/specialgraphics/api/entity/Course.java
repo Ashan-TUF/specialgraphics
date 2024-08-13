@@ -32,10 +32,6 @@ public class Course {
     @JoinColumn(name = "approval_type_id")
     private ApprovalType approvalType;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "course_category_id")
-    private CourseCategory courseCategory;
-
     @Column(name = "is_owned")
     private Byte isOwned;
     @Column(name = "buy_count")
