@@ -10,4 +10,7 @@ public class GeneralUserProfileRequest {
     private String firstName;
     private String lastName;
     private String password;
+    private String mobile;
+    private int country;
+
 }
