@@ -15,28 +15,23 @@ public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Column(name = "code")
     private String code;
     @Column(name = "course_title")
     private String courseTitle;
-    private String comment;
+    @Column(name = "img")
     private String img;
-    private String test_video;
-    @Column(name = "course_length", columnDefinition = "double default 0")
-    private double courseLength;
+    @Column(name = "promotional_video")
+    private String promotionalVideo;
     @Column(name = "created_date")
     private Date createdDate;
-    @Column(name = "is_paid")
-    private int isPaid;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "approval_type_id")
-    private ApprovalType approvalType;
-
-    @Column(name = "is_owned")
-    private Byte isOwned;
     @Column(name = "buy_count")
     private Integer buyCount;
-    @Column(name = "referral_code")
-    private String referralCode;
+    @Column(name = "description")
+    private String description;
+    @Column(name = "price")
+    private Double price;
+    @Column(name = "price")
+    private byte isActive;
 
 }

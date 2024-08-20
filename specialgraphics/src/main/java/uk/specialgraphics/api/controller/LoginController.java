@@ -26,7 +26,7 @@ public class LoginController {
 
     @PostMapping("/admin")
     public UserLoginResponse adminLogIn(){
-        
+        return null;
     }
 
 
