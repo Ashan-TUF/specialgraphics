@@ -10,8 +10,6 @@ import uk.specialgraphics.api.payload.request.UserLoginRequset;
 import uk.specialgraphics.api.payload.response.UserLoginResponse;
 import uk.specialgraphics.api.service.LoginService;
 
-import javax.servlet.http.HttpServletRequest;
-
 @RestController
 @RequestMapping("/authentication")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -21,8 +19,16 @@ public class LoginController {
     private LoginService loginService;
 
     @PostMapping("/student")
-    public UserLoginResponse userLoginResponse(UserLoginRequset request, HttpServletRequest servletRequest) throws Exception {
-        UserLoginResponse loginSessionResponse = loginService.userLoginWithPassword(request, servletRequest.getRemoteAddr());
+    public UserLoginResponse userLoginResponse(UserLoginRequset request) throws Exception {
+        UserLoginResponse loginSessionResponse = loginService.userLoginWithPassword(request);
         return loginSessionResponse;
     }
+
+    @PostMapping("/admin")
+    public UserLoginResponse adminLogIn(){
+        
+    }
+
+
+
 }

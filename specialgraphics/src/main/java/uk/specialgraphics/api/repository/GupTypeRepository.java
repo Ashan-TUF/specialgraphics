@@ -5,4 +5,5 @@ import uk.specialgraphics.api.entity.GupType;
 
 public interface GupTypeRepository extends JpaRepository<GupType, Integer> {
 
+    GupType getGupTypeById(Integer gupType);
 }

@@ -1,0 +1,10 @@
+package uk.specialgraphics.api.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import uk.specialgraphics.api.entity.Course;
+
+public interface CourseRepository extends JpaRepository<Course, Integer> {
+    Course getCourseByCourseTitle(String courseTitle);
+
+    Course findByCode(String courseCode);
+}
