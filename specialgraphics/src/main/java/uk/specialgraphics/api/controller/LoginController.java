@@ -23,12 +23,4 @@ public class LoginController {
         UserLoginResponse loginSessionResponse = loginService.userLoginWithPassword(request);
         return loginSessionResponse;
     }
-
-    @PostMapping("/admin")
-    public UserLoginResponse adminLogIn(){
-        return null;
-    }
-
-
-
 }
