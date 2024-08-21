@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import uk.specialgraphics.api.config.PasswordEncoderConfig;
 import uk.specialgraphics.api.entity.GeneralUserProfile;
 import uk.specialgraphics.api.exception.ErrorException;
 import uk.specialgraphics.api.payload.request.UserLoginRequset;
@@ -33,7 +32,6 @@ public class LoginServiceImpl implements LoginService {
         UserLoginResponse userLoginResponse = new UserLoginResponse();
 
         GeneralUserProfile gup = generalUserProfileRepostory.getGeneralUserProfileByEmail(request.getEmail());
-
         if (gup != null) {
 
             if (passwordEncoder.matches(request.getPassword(), gup.getPassword())) {

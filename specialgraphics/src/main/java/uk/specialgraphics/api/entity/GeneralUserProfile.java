@@ -35,9 +35,6 @@ public class GeneralUserProfile {
     @Column(name = "password", length = 255)
     private String password;
 
-    @Column(name = "mobile", length = 45)
-    private String mobile;
-
     @Column(name = "is_active")
     private Byte isActive;
 
@@ -49,9 +46,5 @@ public class GeneralUserProfile {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "gup_type_id")
     private GupType gupType;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "country_id")
-    private Country country;
 
 }

@@ -4,13 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import uk.specialgraphics.api.config.PasswordEncoderConfig;
-import uk.specialgraphics.api.entity.Country;
 import uk.specialgraphics.api.entity.GeneralUserProfile;
 import uk.specialgraphics.api.entity.GupType;
 import uk.specialgraphics.api.exception.ErrorException;
 import uk.specialgraphics.api.payload.request.GeneralUserProfileRequest;
 import uk.specialgraphics.api.payload.response.GeneralUserProfileResponse;
-import uk.specialgraphics.api.repository.CountryRepository;
 import uk.specialgraphics.api.repository.GeneralUserProfileRepository;
 import uk.specialgraphics.api.repository.GupTypeRepository;
 import uk.specialgraphics.api.security.JwtTokenUtil;
@@ -31,8 +29,6 @@ public class RegisterServiceImpl implements RegisterService {
     private JwtUserDetailsServicePassword userDetailsServicePassword;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
-    @Autowired
-    private CountryRepository countryRepository;
 
     @Override
     public GeneralUserProfileResponse saveUser(GeneralUserProfileRequest generalUserProfileRequest) {
@@ -40,10 +36,8 @@ public class RegisterServiceImpl implements RegisterService {
         String firstName = generalUserProfileRequest.getFirstName();
         String lastName = generalUserProfileRequest.getLastName();
         String password = generalUserProfileRequest.getPassword();
-        String mobile = generalUserProfileRequest.getMobile();
-        int country = generalUserProfileRequest.getCountry();
 
-        if (email == null || email.isEmpty() || firstName == null || firstName.isEmpty() || lastName == null || lastName.isEmpty() || password == null || password.isEmpty()||mobile==null||mobile.isEmpty()||country==0) {
+        if (email == null || email.isEmpty() || firstName == null || firstName.isEmpty() || lastName == null || lastName.isEmpty() || password == null || password.isEmpty()) {
             throw new ErrorException("Invalid request", VarList.RSP_NO_DATA_FOUND);
         }
 
@@ -56,9 +50,6 @@ public class RegisterServiceImpl implements RegisterService {
             generalUserProfile.setUserCode(UUID.randomUUID().toString());
             generalUserProfile.setFirstName(firstName);
             generalUserProfile.setLastName(lastName);
-            generalUserProfile.setMobile(mobile);
-            Country countryFromDB = countryRepository.getCountryById(country);
-            generalUserProfile.setCountry(countryFromDB);
             PasswordEncoderConfig by = new PasswordEncoderConfig();
             String encryptedPwd = by.passwordEncoder().encode(generalUserProfileRequest.getPassword());
             generalUserProfile.setPassword(encryptedPwd);
@@ -86,12 +77,13 @@ public class RegisterServiceImpl implements RegisterService {
             generalUserProfileResponse.setCode(generalUserProfile.getUserCode());
             generalUserProfileResponse.setToken(token);
 
-            generalUserProfileResponse.setMessage("Registered Success");
+            generalUserProfileResponse.setMessage("User profile added successfully");
             generalUserProfileResponse.setVariable(VarList.RSP_SUCCESS);
             return generalUserProfileResponse;
 
+
         } else {
-            throw new ErrorException("Email is already Registered",VarList.RSP_NO_DATA_FOUND);
+            throw new ErrorException("User already exists", VarList.RSP_NO_DATA_FOUND);
         }
     }
 }

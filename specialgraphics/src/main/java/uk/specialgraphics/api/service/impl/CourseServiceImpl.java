@@ -26,10 +26,9 @@ public class CourseServiceImpl implements CourseService {
     private UserProfileService userProfileService;
     @Autowired
     private CourseRepository courseRepository;
-    @Autowired
-    private ApprovalTypeRepository approvalTypeRepository;
 
     private SuccessResponse successResponse = new SuccessResponse();
+
     @Override
     public SuccessResponse addCourse(CourseRequest courseRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -39,8 +38,10 @@ public class CourseServiceImpl implements CourseService {
             if (profile.getIsActive() == 1) {
                 if (profile.getGupType().getId() == 1) {
                     final String courseTitle = courseRequest.getCourse_title();
+                    final Double defaultPrice = courseRequest.getDefault_price();
                     final MultipartFile image = courseRequest.getImg();
-                    final MultipartFile video = courseRequest.getTest_video();
+                    final String description = courseRequest.getDescription();
+                    final String video = courseRequest.getTest_video();
 
 
                     if (courseTitle.isEmpty() || courseTitle == null) {
@@ -51,46 +52,27 @@ public class CourseServiceImpl implements CourseService {
                         throw new ErrorException("Please add a course's test video", VarList.RSP_NO_DATA_FOUND);
                     } else if (!image.getContentType().startsWith("image/") || !image.getOriginalFilename().matches(".*\\.(jpg|jpeg|png|gif|bmp|webp)$")) {
                         throw new ErrorException("Invalid image file type or extension. Only image files are allowed.", VarList.RSP_NO_DATA_FOUND);
-                    } else if (!video.getContentType().startsWith("video/") || !video.getOriginalFilename().matches(".*\\.(mp4|avi|mov|mkv|webm|wmv)$")) {
-                        throw new ErrorException("Invalid video file type. Only video files are allowed.", VarList.RSP_NO_DATA_FOUND);
-                    }else {
+                    } else if (defaultPrice == null || defaultPrice.toString().isEmpty()) {
+                        throw new ErrorException("Please add a default price", VarList.RSP_NO_DATA_FOUND);
+                    } else if (description == null || description.isEmpty()) {
+                        throw new ErrorException("Please add a default price", VarList.RSP_NO_DATA_FOUND);
+                    } else {
 
                         Course getCourse = courseRepository.getCourseByCourseTitle(courseRequest.getCourse_title());
                         if (getCourse == null) {
                             Course course = new Course();
                             course.setCode(UUID.randomUUID().toString());
                             course.setCourseTitle(courseRequest.getCourse_title());
-
+                            course.setPromotionalVideo(video);
                             try {
                                 FileUploadResponse imageUploadResponse = FileUploadUtil.saveFile(courseRequest.getImg());
-                                FileUploadResponse videoUploadResponse = FileUploadUtil.saveFile(courseRequest.getTest_video());
                                 course.setImg(imageUploadResponse.getFilename());
-                                course.setTest_video(videoUploadResponse.getFilename());
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
                             course.setCreatedDate(new Date());
-                            try {
-                                FileUploadResponse imageUploadResponse = FileUploadUtil.saveFile(courseRequest.getImg());
-                                FileUploadResponse videoUploadResponse = FileUploadUtil.saveFile(courseRequest.getTest_video());
-                                course.setImg(imageUploadResponse.getFilename());
-                                course.setTest_video(videoUploadResponse.getFilename());
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                            course.setCreatedDate(new Date());
-                            String customId = generateCustomUUID();
-                            course.setReferralCode(customId);
-
-                            ApprovalType Courseapproval = approvalTypeRepository.getApprovalTypeById(1);
-                            if (Courseapproval != null) {
-                                course.setApprovalType(Courseapproval);
-                            } else {
-                                throw new ErrorException("Approval type not available", VarList.RSP_NO_DATA_FOUND);
-                            }
-
-                            course.setIsPaid(1);
-                            course.setIsOwned((byte) 0);
+                            course.setPrice(defaultPrice);
+                            course.setIsActive((byte) 1);
                             courseRepository.save(course);
 
                             SuccessResponse successResponse = new SuccessResponse();
@@ -112,11 +94,5 @@ public class CourseServiceImpl implements CourseService {
         } else {
             throw new ErrorException("User not found", VarList.RSP_NO_DATA_FOUND);
         }
-    }
-    public static String generateCustomUUID() {
-        UUID uuid = UUID.randomUUID();
-        String customUuid = uuid.toString().replace("-", "").toUpperCase();
-        customUuid = customUuid.replaceAll("[^A-Z0-9]", "");
-        return customUuid.substring(0, 15);
     }
 }
