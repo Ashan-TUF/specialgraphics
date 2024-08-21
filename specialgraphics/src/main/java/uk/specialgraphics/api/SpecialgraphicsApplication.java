@@ -21,7 +21,7 @@ public class SpecialgraphicsApplication {
 		SpringApplication.run(SpecialgraphicsApplication.class, args);
 	}
 	@Bean
-	public GeneralUserProfileResponse generalUserProfileResponse() {
+	public GeneralUserProfileResponse  generalUserProfileResponse() {
 		return new GeneralUserProfileResponse();
 	}
 	@Bean

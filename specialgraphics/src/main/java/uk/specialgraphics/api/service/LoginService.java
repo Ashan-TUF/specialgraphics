@@ -5,4 +5,7 @@ import uk.specialgraphics.api.payload.response.UserLoginResponse;
 
 public interface LoginService {
     UserLoginResponse userLoginWithPassword(UserLoginRequset request);
+
+    UserLoginResponse adminLoginWithPassword(UserLoginRequset request);
+
 }

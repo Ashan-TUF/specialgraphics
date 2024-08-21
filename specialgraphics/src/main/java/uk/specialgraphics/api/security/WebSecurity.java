@@ -48,6 +48,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                 .authorizeRequests().antMatchers(
                         "/",
                         "/authentication/student",
+                        "/authentication/admin",
                         "/register/add","/country/getAllCountries"
 
                 ).permitAll().

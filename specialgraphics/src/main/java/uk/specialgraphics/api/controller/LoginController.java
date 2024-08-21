@@ -25,8 +25,9 @@ public class LoginController {
     }
 
     @PostMapping("/admin")
-    public UserLoginResponse adminLogIn(){
-        return null;
+    public UserLoginResponse adminLogIn(UserLoginRequset request) throws Exception{
+        UserLoginResponse adminLoginResponse = loginService.adminLoginWithPassword(request);
+        return adminLoginResponse;
     }
 
 
