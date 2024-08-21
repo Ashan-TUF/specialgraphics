@@ -10,5 +10,6 @@ public class CourseRequest {
     private String course_title;
     private Double default_price;
     private MultipartFile img;
-    private MultipartFile test_video;
+    private String description;
+    private String test_video;
 }

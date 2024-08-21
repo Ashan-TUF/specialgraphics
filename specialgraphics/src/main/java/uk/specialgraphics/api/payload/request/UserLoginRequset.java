@@ -8,5 +8,4 @@ import lombok.ToString;
 public class UserLoginRequset {
     public String email;
     public String password;
-
 }
