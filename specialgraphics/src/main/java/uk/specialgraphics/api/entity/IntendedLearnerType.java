@@ -19,4 +19,6 @@ public class IntendedLearnerType {
 
     @Column(name = "name", length = 45)
     private String name;
+
+// fuck you
 }
