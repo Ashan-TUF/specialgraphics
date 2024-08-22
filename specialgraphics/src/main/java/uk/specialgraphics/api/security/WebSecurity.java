@@ -49,7 +49,8 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                         "/",
                         "/authentication/student",
                         "/authentication/admin",
-                        "/register/add","/country/getAllCountries"
+                        "/register/add",
+                        "/country/getAllCountries",
                         "/api/files/upload",
                         "/register/add"
 
