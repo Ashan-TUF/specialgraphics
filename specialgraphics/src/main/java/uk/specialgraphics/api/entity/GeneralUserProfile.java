@@ -47,4 +47,11 @@ public class GeneralUserProfile {
     @JoinColumn(name = "gup_type_id")
     private GupType gupType;
 
+    @Column(name = "mobile", length = 45)
+    private String mobile;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "country_id")
+    private Country country;
+
 }
