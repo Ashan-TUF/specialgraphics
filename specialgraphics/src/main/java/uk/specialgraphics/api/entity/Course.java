@@ -29,6 +29,8 @@ public class Course {
     private Integer buyCount;
     @Column(name = "description")
     private String description;
+    @Column(name = "points")
+    private String points;
     @Column(name = "price")
     private Double price;
     @Column(name = "is_active")
