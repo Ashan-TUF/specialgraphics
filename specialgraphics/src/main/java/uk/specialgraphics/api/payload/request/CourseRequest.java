@@ -11,5 +11,7 @@ public class CourseRequest {
     private Double default_price;
     private MultipartFile img;
     private String description;
-    private String test_video;
+    private String promotonalVideo;
+    private String points;
+    private String code;
 }
