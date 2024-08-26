@@ -11,6 +11,6 @@ public class GeneralUserProfileRequest {
     private String lastName;
     private String password;
     private String mobile;
-    private int country;
+    private Integer country;
 
 }

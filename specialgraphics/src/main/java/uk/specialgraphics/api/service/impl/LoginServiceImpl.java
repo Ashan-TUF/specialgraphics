@@ -18,96 +18,94 @@ import uk.specialgraphics.api.utils.VarList;
 @Service
 @Slf4j
 public class LoginServiceImpl implements LoginService {
-    @Autowired
-    GeneralUserProfileRepository generalUserProfileRepostory;
-    @Autowired
+
+    GeneralUserProfileRepository generalUserProfileRepository;
     private JwtUserDetailsServicePassword userDetailsServicePassword;
-    @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
-    private BCryptPasswordEncoder passwordEncoder= new BCryptPasswordEncoder();
+    @Autowired
+    public LoginServiceImpl(GeneralUserProfileRepository generalUserProfileRepository, JwtUserDetailsServicePassword userDetailsServicePassword, JwtTokenUtil jwtTokenUtil) {
+        this.generalUserProfileRepository = generalUserProfileRepository;
+        this.userDetailsServicePassword = userDetailsServicePassword;
+        this.jwtTokenUtil = jwtTokenUtil;
+    }
+
+    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    private UserDetails userDetails;
+    private UserLoginResponse userLoginResponse;
+    private String token;
 
     @Override
     public UserLoginResponse userLoginWithPassword(UserLoginRequset request) {
-        UserLoginResponse userLoginResponse = new UserLoginResponse();
+        final String email = request.getEmail();
+        final String password = request.getPassword();
 
-        GeneralUserProfile gup = generalUserProfileRepostory.getGeneralUserProfileByEmail(request.getEmail());
-        if (gup != null) {
+        if (email == null || email.isEmpty() || password == null || password.isEmpty())
+            throw new ErrorException("Invalid request", VarList.RSP_NO_DATA_FOUND);
 
-            if (passwordEncoder.matches(request.getPassword(), gup.getPassword())) {
+        GeneralUserProfile gup = generalUserProfileRepository.getGeneralUserProfileByEmail(email);
 
-                UserDetails userDetails = userDetailsServicePassword.loadUserByUsername(request.getEmail());
+        if (gup == null)
+            throw new ErrorException("Invalid credentials", VarList.RSP_NO_DATA_FOUND);
 
-                String token = null;
-                try {
-                    token = jwtTokenUtil.generateToken(userDetails);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                userLoginResponse.setToken(token);
-                userLoginResponse.setFname(gup.getFirstName());
-                userLoginResponse.setLname(gup.getLastName());
-                userLoginResponse.setEmail(gup.getEmail());
-                userLoginResponse.setGup_type(gup.getGupType().getName());
-            } else {
-                log.warn("password incorrect.");
-                throw new ErrorException("incorrect password.", VarList.RSP_NO_DATA_FOUND);
-            }
 
-        } else {
-            log.warn("user not found");
-            throw new ErrorException("User not found", VarList.RSP_NO_DATA_FOUND);
+        UserDetails userDetails = loadUserDetailsByUsername(gup, password, email);
+
+        try {
+            token = jwtTokenUtil.generateToken(userDetails);
+        } catch (Exception e) {
+            throw new RuntimeException("Token generation failed");
         }
 
-        return userLoginResponse;
+        return createUserLoginResponse(gup, token);
     }
+
     @Override
     public UserLoginResponse adminLoginWithPassword(UserLoginRequset request) {
-        UserLoginResponse userLoginResponse = new UserLoginResponse();
+        final String email = request.getEmail();
+        final String password = request.getPassword();
 
-        GeneralUserProfile gup = generalUserProfileRepostory.getGeneralUserProfileByEmail(request.getEmail());
+        if (email == null || email.isEmpty() || password == null || password.isEmpty())
+            throw new ErrorException("Invalid request", VarList.RSP_NO_DATA_FOUND);
 
-        if (gup != null) {
+        GeneralUserProfile gup = generalUserProfileRepository.getGeneralUserProfileByEmail(email);
 
-            if(gup.getGupType().getName().equals("sp_admin")){
-                if(gup.getIsActive()==1){
-                    if (passwordEncoder.matches(request.getPassword(), gup.getPassword())) {
-
-                        UserDetails userDetails = userDetailsServicePassword.loadUserByUsername(request.getEmail());
-
-                        String token = null;
-                        try {
-                            token = jwtTokenUtil.generateToken(userDetails);
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                        userLoginResponse.setToken(token);
-                        userLoginResponse.setFname(gup.getFirstName());
-                        userLoginResponse.setLname(gup.getLastName());
-                        userLoginResponse.setEmail(gup.getEmail());
-                        userLoginResponse.setGup_type(gup.getGupType().getName());
-                    } else {
-                        log.warn("password incorrect.");
-                        throw new ErrorException("incorrect password.", VarList.RSP_NO_DATA_FOUND);
-                    }
-                }else{
-                    log.warn("Account is suspended");
-                    throw new ErrorException("Account is suspended.", VarList.RSP_NO_DATA_FOUND);
-                }
-
-            }else{
-                log.warn("User try to log as an admin");
-                throw new ErrorException("You are not an admin try user login instead", VarList.RSP_NO_DATA_FOUND);
-            }
+        if (gup == null)
+            throw new ErrorException("User not found", VarList.RSP_NO_DATA_FOUND);
 
 
+        if (gup.getGupType().getId() != 1)
+            throw new ErrorException("Access denied", VarList.RSP_NO_DATA_FOUND);
 
-        } else {
-            log.warn("Email is not registered to the System");
-            throw new ErrorException("Invalid User", VarList.RSP_NO_DATA_FOUND);
+        if (gup.getIsActive() != 1)
+            throw new ErrorException("Your admin account deactivated.", VarList.RSP_NO_DATA_FOUND);
+
+        UserDetails userDetails = loadUserDetailsByUsername(gup, password, email);
+
+        try {
+            token = jwtTokenUtil.generateToken(userDetails);
+        } catch (Exception e) {
+            throw new RuntimeException("Token generation failed");
         }
 
-        return userLoginResponse;
+        return createUserLoginResponse(gup, token);
     }
 
+    private UserDetails loadUserDetailsByUsername(GeneralUserProfile gup, String password, String email) {
+        if (!passwordEncoder.matches(password, gup.getPassword()))
+            throw new ErrorException("Invalid credentials", VarList.RSP_NO_DATA_FOUND);
+
+        return userDetailsServicePassword.loadUserByUsername(email);
+    }
+
+    private UserLoginResponse createUserLoginResponse(GeneralUserProfile gup, String token) {
+        UserLoginResponse response = new UserLoginResponse();
+        response.setToken(token);
+        response.setFname(gup.getFirstName());
+        response.setLname(gup.getLastName());
+        response.setEmail(gup.getEmail());
+        response.setGup_type(gup.getGupType().getName());
+        return response;
+    }
 }

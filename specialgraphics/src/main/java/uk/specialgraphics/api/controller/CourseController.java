@@ -1,17 +1,13 @@
 package uk.specialgraphics.api.controller;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import uk.specialgraphics.api.payload.request.CourseRequest;
-import uk.specialgraphics.api.payload.request.SingleCourseRequest;
-import uk.specialgraphics.api.payload.response.AllCourseResponse;
-import uk.specialgraphics.api.payload.response.SingleCourseResponse;
+import uk.specialgraphics.api.payload.response.CourseResponse;
 import uk.specialgraphics.api.payload.response.SuccessResponse;
 import uk.specialgraphics.api.service.CourseService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/course")
@@ -26,15 +22,15 @@ public class CourseController {
     }
 
     @PostMapping("/getAllCourses")
-    public AllCourseResponse getAllCourses() {
+    public List<CourseResponse> getAllCourses() {
         return courseService.getAllCourses();
     }
 
-    @PostMapping("/getCourseByCode")
-    public SingleCourseResponse getCourseById(SingleCourseRequest singleCourseRequest){
-        return courseService.getCourseByCode(singleCourseRequest);
+    @PostMapping("/getCourseByCode/{courseCode}")
+    public CourseResponse getCourseById(@PathVariable String courseCode){
+        return courseService.getCourseByCode(courseCode);
     }
-    @PostMapping("/updateCourse")
+    @PutMapping("/updateCourse")
     public SuccessResponse updateCourse(CourseRequest request){
         return courseService.updateCourseByCode(request);
     }

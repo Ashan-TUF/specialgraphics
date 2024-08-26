@@ -10,8 +10,5 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 
     Course getCourseByCode(String code);
 
-    List<Course> getAllByIsActiveEquals(byte status);
-
-
     Course findByCode(String courseCode);
 }
