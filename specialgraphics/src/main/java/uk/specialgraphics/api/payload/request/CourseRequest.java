@@ -7,11 +7,11 @@ import org.springframework.web.multipart.MultipartFile;
 @Data
 @ToString
 public class CourseRequest {
-    private String course_title;
-    private Double default_price;
+    private String code;
+    private String title;
+    private Double price;
     private MultipartFile img;
     private String description;
-    private String promotonalVideo;
+    private String promotionalVideo;
     private String points;
-    private String code;
 }

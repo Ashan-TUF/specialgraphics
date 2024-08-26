@@ -16,42 +16,30 @@ public class GeneralUserProfile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
-
     @Column(name = "email", length = 45)
     private String email;
-
     @Column(name = "user_code", length = 45)
     private String userCode;
-
     @Column(name = "registered_date")
     private Date registeredDate;
-
     @Column(name = "first_name", length = 45)
     private String firstName;
-
     @Column(name = "last_name", length = 45)
     private String lastName;
-
     @Column(name = "password", length = 255)
     private String password;
-
     @Column(name = "is_active")
     private Byte isActive;
-
     @Column(name = "profile_img", length = 1000)
     private String profileImg;
     @Column(name = "verification_code")
     private String verificationCode;
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "gup_type_id")
     private GupType gupType;
-
     @Column(name = "mobile", length = 45)
     private String mobile;
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "country_id")
     private Country country;
-
 }

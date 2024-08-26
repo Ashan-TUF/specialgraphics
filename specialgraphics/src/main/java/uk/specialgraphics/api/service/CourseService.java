@@ -1,17 +1,17 @@
 package uk.specialgraphics.api.service;
 
 import uk.specialgraphics.api.payload.request.CourseRequest;
-import uk.specialgraphics.api.payload.request.SingleCourseRequest;
-import uk.specialgraphics.api.payload.response.AllCourseResponse;
-import uk.specialgraphics.api.payload.response.SingleCourseResponse;
+import uk.specialgraphics.api.payload.response.CourseResponse;
 import uk.specialgraphics.api.payload.response.SuccessResponse;
+
+import java.util.List;
 
 public interface CourseService {
     SuccessResponse addCourse(CourseRequest courseRequest);
 
-    AllCourseResponse getAllCourses();
+    List<CourseResponse> getAllCourses();
 
-SingleCourseResponse getCourseByCode(SingleCourseRequest code);
+    CourseResponse getCourseByCode(String courseCode);
 
     SuccessResponse updateCourseByCode(CourseRequest request);
 }

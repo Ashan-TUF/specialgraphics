@@ -15,38 +15,25 @@ import java.util.UUID;
 
 public class FileUploadUtil {
 
-    public static FileUploadResponse saveFile(MultipartFile file) throws IOException {
+    public static FileUploadResponse saveFile(MultipartFile file, String type) throws IOException {
         try {
             String randomFilename = new Date().getTime() + "_" + UUID.randomUUID().toString().concat(".")
                     .concat(Objects.requireNonNull(FilenameUtils.getExtension(file.getOriginalFilename())));
-            Path image1SavePath = Paths.get(Config.UPLOAD_URL, randomFilename);
-            Files.write(image1SavePath, file.getBytes());
+            String path;
+            if (type == "course-image") {
+                path = Config.COURSE_IMAGES_UPLOAD_URL;
+            } else {
+                path = Config.OTHERS_UPLOAD_URL;
+            }
+            Path savePath = Paths.get(Config.UPLOAD_URL + path, randomFilename);
+            Files.write(savePath, file.getBytes());
 
             FileUploadResponse fileUploadResponse = new FileUploadResponse();
-            fileUploadResponse.setFilename(randomFilename);
-            fileUploadResponse.setUrl(file.getOriginalFilename());
+            fileUploadResponse.setFilename(file.getOriginalFilename());
+            fileUploadResponse.setUrl(path + randomFilename);
             return fileUploadResponse;
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload the file", e);
-        }
-    }
-
-    public static FileUploadResponse deleteFile(String filename) {
-        String targetPath = Config.UPLOAD_URL + filename;
-        try {
-            Path filePath = Paths.get(targetPath);
-            if (Files.exists(filePath)) {
-                Files.delete(filePath);
-
-                FileUploadResponse fileUploadResponse = new FileUploadResponse();
-                fileUploadResponse.setFilename(filename);
-                fileUploadResponse.setUrl(null);
-                return fileUploadResponse;
-            } else {
-                throw new RuntimeException("File not found: " + filename);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to delete the file: " + filename, e);
         }
     }
 }

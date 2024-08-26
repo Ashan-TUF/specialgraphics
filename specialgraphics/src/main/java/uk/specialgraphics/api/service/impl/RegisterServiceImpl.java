@@ -23,27 +23,39 @@ import java.util.UUID;
 
 @Service
 public class RegisterServiceImpl implements RegisterService {
-    @Autowired
     private GeneralUserProfileRepository generalUserProfileRepository;
-    @Autowired
     private GupTypeRepository gupTypeRepository;
-    @Autowired
     private JwtUserDetailsServicePassword userDetailsServicePassword;
-    @Autowired
     private JwtTokenUtil jwtTokenUtil;
-    @Autowired
     private CountryRepository countryRepository;
+
+    @Autowired
+    public RegisterServiceImpl(GeneralUserProfileRepository generalUserProfileRepository,
+                               GupTypeRepository gupTypeRepository,
+                               JwtUserDetailsServicePassword userDetailsServicePassword,
+                               JwtTokenUtil jwtTokenUtil,
+                               CountryRepository countryRepository) {
+        this.generalUserProfileRepository = generalUserProfileRepository;
+        this.gupTypeRepository = gupTypeRepository;
+        this.userDetailsServicePassword = userDetailsServicePassword;
+        this.jwtTokenUtil = jwtTokenUtil;
+        this.countryRepository = countryRepository;
+    }
 
     @Override
     public GeneralUserProfileResponse saveUser(GeneralUserProfileRequest generalUserProfileRequest) {
-        String email = generalUserProfileRequest.getEmail();
-        String firstName = generalUserProfileRequest.getFirstName();
-        String lastName = generalUserProfileRequest.getLastName();
-        String password = generalUserProfileRequest.getPassword();
-        String mobile = generalUserProfileRequest.getMobile();
-        int country = generalUserProfileRequest.getCountry();
+        final String email = generalUserProfileRequest.getEmail();
+        final String firstName = generalUserProfileRequest.getFirstName();
+        final String lastName = generalUserProfileRequest.getLastName();
+        final String password = generalUserProfileRequest.getPassword();
+        final String mobile = generalUserProfileRequest.getMobile();
+        final Integer country = generalUserProfileRequest.getCountry();
 
-        if (email == null || email.isEmpty() || firstName == null || firstName.isEmpty() || lastName == null || lastName.isEmpty() || password == null || password.isEmpty()||mobile==null||mobile.isEmpty()||country==0) {
+        if (email == null || email.isEmpty() ||
+                firstName == null || firstName.isEmpty() ||
+                lastName == null || lastName.isEmpty() || password == null || password.isEmpty() ||
+                mobile == null || mobile.isEmpty() ||
+                country == null || country.toString().isEmpty() || country == 0) {
             throw new ErrorException("Invalid request", VarList.RSP_NO_DATA_FOUND);
         }
 
@@ -58,16 +70,17 @@ public class RegisterServiceImpl implements RegisterService {
             generalUserProfile.setLastName(lastName);
             generalUserProfile.setMobile(mobile);
             Country countryFromDB = countryRepository.getCountryById(country);
+            if (countryFromDB == null)
+                throw new ErrorException("The country cannot be found in the database", VarList.RSP_NO_DATA_FOUND);
             generalUserProfile.setCountry(countryFromDB);
             PasswordEncoderConfig by = new PasswordEncoderConfig();
             String encryptedPwd = by.passwordEncoder().encode(generalUserProfileRequest.getPassword());
             generalUserProfile.setPassword(encryptedPwd);
             generalUserProfile.setRegisteredDate(new Date());
             generalUserProfile.setIsActive((byte) 1);
-            GupType gupTypeObj = gupTypeRepository.getGupTypeById(1);
-            if (gupTypeObj == null) {
+            GupType gupTypeObj = gupTypeRepository.getGupTypeById(2);
+            if (gupTypeObj == null)
                 throw new ErrorException("Invalid gup type id", VarList.RSP_NO_DATA_FOUND);
-            }
             generalUserProfile.setGupType(gupTypeObj);
 
 
@@ -91,7 +104,7 @@ public class RegisterServiceImpl implements RegisterService {
             return generalUserProfileResponse;
 
         } else {
-            throw new ErrorException("Email is already Registered",VarList.RSP_NO_DATA_FOUND);
+            throw new ErrorException("Email is already Registered", VarList.RSP_NO_DATA_FOUND);
         }
     }
 }

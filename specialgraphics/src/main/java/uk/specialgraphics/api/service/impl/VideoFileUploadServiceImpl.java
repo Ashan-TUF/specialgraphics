@@ -15,7 +15,7 @@ public class VideoFileUploadServiceImpl implements VideoFileUploadService {
     public ApiResponse saveFileChunk(MultipartFile fileObj, String index, String totalChunks, String fileName) {
         boolean status = false;
         String msg = "";
-        File directory = new File(Config.VIDEO_UPLOAD_URL);
+        File directory = new File(Config.VIDEOS_UPLOAD_URL);
 
         if (!directory.exists()) {
             directory.mkdirs();
@@ -34,12 +34,12 @@ public class VideoFileUploadServiceImpl implements VideoFileUploadService {
             String folderName = fileName.replace('.', 'V');
 
             // Create folder if it doesn't exist
-            File f1 = new File(Config.VIDEO_UPLOAD_URL + folderName);
+            File f1 = new File(Config.VIDEOS_UPLOAD_URL + folderName);
             if (!f1.exists()) {
                 f1.mkdir();
             }
 
-            File file = new File(Config.VIDEO_UPLOAD_URL + folderName + "/" + index);
+            File file = new File(Config.VIDEOS_UPLOAD_URL + folderName + "/" + index);
 
 //            System.out.println(index + "/" + totalChunks + " " + fileName + " " + file1.getSize());
 
@@ -62,11 +62,11 @@ public class VideoFileUploadServiceImpl implements VideoFileUploadService {
             // Delete temporary files and append if necessary
             if (f1.listFiles().length == Integer.parseInt(totalChunks)) {
                 System.out.println("Appending...." + f1.listFiles().length);
-                File finalFile = new File(Config.VIDEO_UPLOAD_URL + fileName);
+                File finalFile = new File(Config.VIDEOS_UPLOAD_URL + fileName);
 
                 try (FileOutputStream fos2 = new FileOutputStream(finalFile)) {
                     for (int i = 1; i <= Integer.parseInt(totalChunks); i++) {
-                        File chunk = new File(Config.VIDEO_UPLOAD_URL + folderName + "/" + i);
+                        File chunk = new File(Config.VIDEOS_UPLOAD_URL + folderName + "/" + i);
                         try (InputStream is2 = new FileInputStream(chunk);
                              BufferedInputStream bis2 = new BufferedInputStream(is2)) {
 
