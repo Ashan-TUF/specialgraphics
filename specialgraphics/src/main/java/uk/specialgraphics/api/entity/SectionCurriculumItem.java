@@ -16,7 +16,9 @@ public class SectionCurriculumItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
-    @Column(name = "title", length = 80)
+    @Column(name = "code")
+    private String code;
+    @Column(name = "title")
     private String title;
     @Lob
     @Column(name = "description")
@@ -24,13 +26,6 @@ public class SectionCurriculumItem {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "course_section_id")
     private CourseSection courseSection;
-    @Column(name = "is_delete")
-    private Byte isDelete;
-    @Column(name = "arranged_no")
-    private Integer arranged_no;
-    @Lob
-    @Column(name = "article")
-    private String article;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "curriculum_item_type_id")
     private CurriculumItemType curriculumItemType;

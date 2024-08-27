@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import uk.specialgraphics.api.entity.*;
 import uk.specialgraphics.api.exception.ErrorException;
+import uk.specialgraphics.api.payload.request.AddSectionCurriculumItemRequest;
+import uk.specialgraphics.api.payload.request.AddSectionRequest;
 import uk.specialgraphics.api.payload.request.CourseRequest;
 import uk.specialgraphics.api.payload.response.*;
 import uk.specialgraphics.api.repository.*;
@@ -23,16 +25,21 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@Slf4j
 public class CourseServiceImpl implements CourseService {
     private final UserProfileService userProfileService;
     private final CourseRepository courseRepository;
+    private final CourseSectionRepository courseSectionRepository;
+    private final SectionCurriculumItemRepository sectionCurriculumItemRepository;
 
     @Autowired
     public CourseServiceImpl(UserProfileService userProfileService,
-                             CourseRepository courseRepository) {
+                             CourseRepository courseRepository,
+                             CourseSectionRepository courseSectionRepository,
+                             SectionCurriculumItemRepository sectionCurriculumItemRepository) {
         this.userProfileService = userProfileService;
         this.courseRepository = courseRepository;
+        this.courseSectionRepository = courseSectionRepository;
+        this.sectionCurriculumItemRepository = sectionCurriculumItemRepository;
     }
 
 
@@ -211,5 +218,66 @@ public class CourseServiceImpl implements CourseService {
         successResponse.setMessage("Course updated successfully");
         successResponse.setVariable(VarList.RSP_SUCCESS);
         return successResponse;
+    }
+
+    @Override
+    public AddCourseSectionResponse addSection(AddSectionRequest addSectionRequest) {
+        authentication();
+        final String courseCode = addSectionRequest.getCourseCode();
+        final String sectionName = addSectionRequest.getSectionName();
+        if (courseCode == null || courseCode.isEmpty() || sectionName == null || sectionName.isEmpty())
+            throw new ErrorException("Invalid request", VarList.RSP_NO_DATA_FOUND);
+        Course course = courseRepository.getCourseByCode(courseCode);
+        if (course == null)
+            throw new ErrorException("Invalid request", VarList.RSP_NO_DATA_FOUND);
+        CourseSection courseSection = courseSectionRepository.getCourseSectionByCourseAndSectionName(course, sectionName);
+        if (courseSection != null)
+            throw new ErrorException("Already added", VarList.RSP_ERROR);
+        courseSection = new CourseSection();
+        courseSection.setCourse(course);
+        courseSection.setSectionName(sectionName);
+        courseSection.setSectionCode(UUID.randomUUID().toString());
+        courseSectionRepository.save(courseSection);
+
+        AddCourseSectionResponse addCourseSectionResponse = new AddCourseSectionResponse();
+        addCourseSectionResponse.setMessage("Course section added successfully");
+        addCourseSectionResponse.setStatusCode(VarList.RSP_SUCCESS);
+        addCourseSectionResponse.setSectionCode(courseSection.getSectionCode());
+        return addCourseSectionResponse;
+    }
+
+    @Override
+    public AddSectionCurriculumItemResponse addSectionItem(AddSectionCurriculumItemRequest addSectionCurriculumItemRequest) {
+        authentication();
+        final String courseCode = addSectionCurriculumItemRequest.getCourseCode();
+        final String courseSectionCode = addSectionCurriculumItemRequest.getCourseSectionCode();
+        final String description = addSectionCurriculumItemRequest.getDescription();
+        final String title = addSectionCurriculumItemRequest.getTitle();
+
+        if (courseCode == null || courseCode.isEmpty() || courseSectionCode == null ||
+                courseSectionCode.isEmpty() || description == null || description.isEmpty() || title == null || title.isEmpty())
+            throw new ErrorException("Invalid request", VarList.RSP_NO_DATA_FOUND);
+        Course course = courseRepository.getCourseByCode(courseCode);
+        if (course == null)
+            throw new ErrorException("Invalid course code", VarList.RSP_NO_DATA_FOUND);
+        CourseSection courseSection = courseSectionRepository.getCourseSectionBySectionCode(courseSectionCode);
+        if (courseSection == null)
+            throw new ErrorException("Invalid course section code", VarList.RSP_NO_DATA_FOUND);
+        SectionCurriculumItem sectionCurriculumItem = sectionCurriculumItemRepository.getSectionCurriculumItemByCourseSectionAndTitle(courseSection, title);
+        if (sectionCurriculumItem != null)
+            throw new ErrorException("Already added", VarList.RSP_NO_DATA_FOUND);
+
+        sectionCurriculumItem = new SectionCurriculumItem();
+        sectionCurriculumItem.setCode(UUID.randomUUID().toString());
+        sectionCurriculumItem.setCourseSection(courseSection);
+        sectionCurriculumItem.setTitle(title);
+        sectionCurriculumItem.setDescription(description);
+        sectionCurriculumItemRepository.save(sectionCurriculumItem);
+
+        AddSectionCurriculumItemResponse addSectionCurriculumItemResponse = new AddSectionCurriculumItemResponse();
+        addSectionCurriculumItemResponse.setMessage("Section curriculum item added successfully");
+        addSectionCurriculumItemResponse.setStatusCode(VarList.RSP_SUCCESS);
+        addSectionCurriculumItemResponse.setSectionItemCode(sectionCurriculumItem.getCode());
+        return addSectionCurriculumItemResponse;
     }
 }
