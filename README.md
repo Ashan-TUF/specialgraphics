@@ -1,2 +1,0 @@
-# specialgraphics
- special graphics

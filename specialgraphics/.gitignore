@@ -18,6 +18,11 @@ target/
 *.iws
 *.iml
 *.ipr
+# Ignore everything in the .idea folder except specific files
+.idea/*
+!.idea/uiDesigner.xml
+!.idea/inspectionProfiles/
+!.idea/inspectionProfiles/Project_Default.xml
 
 ### NetBeans ###
 /nbproject/private/
