@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import uk.specialgraphics.api.payload.request.AddSectionCurriculumItemRequest;
 import uk.specialgraphics.api.payload.request.AddSectionRequest;
+import uk.specialgraphics.api.payload.request.AddVideoRequest;
 import uk.specialgraphics.api.payload.request.CourseRequest;
 import uk.specialgraphics.api.payload.response.AddCourseSectionResponse;
 import uk.specialgraphics.api.payload.response.AddSectionCurriculumItemResponse;
@@ -42,5 +43,9 @@ public class CourseController {
     @PostMapping("/addSectionItem")
     public AddSectionCurriculumItemResponse AddSection(AddSectionCurriculumItemRequest addSectionCurriculumItemRequest) {
         return courseService.addSectionItem(addSectionCurriculumItemRequest);
+    }
+    @PostMapping("/addVideo")
+    public SuccessResponse Addvideo(AddVideoRequest addVideoRequest) {
+        return courseService.addVideo(addVideoRequest);
     }
 }
