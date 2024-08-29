@@ -2,6 +2,7 @@ package uk.specialgraphics.api.service;
 
 import uk.specialgraphics.api.payload.request.AddSectionCurriculumItemRequest;
 import uk.specialgraphics.api.payload.request.AddSectionRequest;
+import uk.specialgraphics.api.payload.request.AddVideoRequest;
 import uk.specialgraphics.api.payload.request.CourseRequest;
 import uk.specialgraphics.api.payload.response.AddCourseSectionResponse;
 import uk.specialgraphics.api.payload.response.AddSectionCurriculumItemResponse;
@@ -22,4 +23,6 @@ public interface CourseService {
     AddCourseSectionResponse addSection(AddSectionRequest addSectionRequest);
 
     AddSectionCurriculumItemResponse addSectionItem(AddSectionCurriculumItemRequest addSectionCurriculumItemRequest);
+
+    SuccessResponse addVideo(AddVideoRequest addVideoRequest);
 }

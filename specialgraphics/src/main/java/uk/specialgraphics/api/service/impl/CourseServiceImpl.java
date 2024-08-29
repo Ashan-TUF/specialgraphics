@@ -6,10 +6,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import uk.specialgraphics.api.config.Config;
 import uk.specialgraphics.api.entity.*;
 import uk.specialgraphics.api.exception.ErrorException;
 import uk.specialgraphics.api.payload.request.AddSectionCurriculumItemRequest;
 import uk.specialgraphics.api.payload.request.AddSectionRequest;
+import uk.specialgraphics.api.payload.request.AddVideoRequest;
 import uk.specialgraphics.api.payload.request.CourseRequest;
 import uk.specialgraphics.api.payload.response.*;
 import uk.specialgraphics.api.repository.*;
@@ -30,16 +32,22 @@ public class CourseServiceImpl implements CourseService {
     private final CourseRepository courseRepository;
     private final CourseSectionRepository courseSectionRepository;
     private final SectionCurriculumItemRepository sectionCurriculumItemRepository;
+    private final CurriculumItemFileTypeRepository curriculumItemFileTypeRepository;
+    private final CurriculumItemFileRepository curriculumItemFileRepository;
 
     @Autowired
     public CourseServiceImpl(UserProfileService userProfileService,
                              CourseRepository courseRepository,
                              CourseSectionRepository courseSectionRepository,
-                             SectionCurriculumItemRepository sectionCurriculumItemRepository) {
+                             SectionCurriculumItemRepository sectionCurriculumItemRepository,
+                             CurriculumItemFileTypeRepository curriculumItemFileTypeRepository,
+                             CurriculumItemFileRepository curriculumItemFileRepository) {
         this.userProfileService = userProfileService;
         this.courseRepository = courseRepository;
         this.courseSectionRepository = courseSectionRepository;
         this.sectionCurriculumItemRepository = sectionCurriculumItemRepository;
+        this.curriculumItemFileTypeRepository = curriculumItemFileTypeRepository;
+        this.curriculumItemFileRepository = curriculumItemFileRepository;
     }
 
 
@@ -51,15 +59,14 @@ public class CourseServiceImpl implements CourseService {
         username = authentication.getName();
         profile = userProfileService.getProfile(username);
 
-        if (profile == null) {
+        if (profile == null)
             throw new ErrorException("User not found", VarList.RSP_NO_DATA_FOUND);
-        }
-        if (profile.getIsActive() != 1) {
+
+        if (profile.getIsActive() != 1)
             throw new ErrorException("User not active", VarList.RSP_NO_DATA_FOUND);
-        }
-        if (profile.getGupType().getId() != 1) {
+
+        if (profile.getGupType().getId() != 1)
             throw new ErrorException("You are not a instructor to this operation", VarList.RSP_NO_DATA_FOUND);
-        }
     }
 
     @Override
@@ -118,7 +125,7 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public List<CourseResponse> getAllCourses() {
         List<Course> courseList = courseRepository.findAll();
-        List<CourseResponse> courseRespons = new ArrayList<>();
+        List<CourseResponse> courseResponses = new ArrayList<>();
         for (Course course : courseList) {
             if (course.getIsActive() == 1) {
                 CourseResponse courseResponse = new CourseResponse();
@@ -131,10 +138,29 @@ public class CourseServiceImpl implements CourseService {
                 courseResponse.setDescription(course.getDescription());
                 courseResponse.setPoints(course.getPoints());
                 courseResponse.setPrice(course.getPrice());
-                courseRespons.add(courseResponse);
+                List<CourseSection> courseSections = courseSectionRepository.getCourseSectionByCourse(course);
+                List<CourseSectionResponse> courseSectionResponses = new ArrayList<>();
+                for (CourseSection courseSection : courseSections) {
+                    CourseSectionResponse courseSectionResponse = new CourseSectionResponse();
+                    courseSectionResponse.setSectionCode(courseSection.getSectionCode());
+                    courseSectionResponse.setSectionName(courseSection.getSectionName());
+                    List<SectionCurriculumItem> sectionCurriculumItems = sectionCurriculumItemRepository.getSectionCurriculumItemByCourseSection(courseSection);
+                    List<CurriculumItemResponse> curriculumItemResponses = new ArrayList<>();
+                    for (SectionCurriculumItem sectionCurriculumItem : sectionCurriculumItems) {
+                        CurriculumItemResponse curriculumItemResponse = new CurriculumItemResponse();
+                        curriculumItemResponse.setTitle(sectionCurriculumItem.getTitle());
+                        curriculumItemResponse.setDescription(sectionCurriculumItem.getDescription());
+                        curriculumItemResponse.setCurriculumItemType(sectionCurriculumItem.getCurriculumItemType());
+                        curriculumItemResponses.add(curriculumItemResponse);
+                    }
+                    courseSectionResponse.setCurriculumItems(curriculumItemResponses);
+                    courseSectionResponses.add(courseSectionResponse);
+                }
+                courseResponse.setCourseSections(courseSectionResponses);
+                courseResponses.add(courseResponse);
             }
         }
-        return courseRespons;
+        return courseResponses;
 
     }
 
@@ -154,6 +180,25 @@ public class CourseServiceImpl implements CourseService {
         courseResponse.setDescription(course.getDescription());
         courseResponse.setPoints(course.getPoints());
         courseResponse.setPrice(course.getPrice());
+        List<CourseSection> courseSections = courseSectionRepository.getCourseSectionByCourse(course);
+        List<CourseSectionResponse> courseSectionResponses = new ArrayList<>();
+        for (CourseSection courseSection : courseSections) {
+            CourseSectionResponse courseSectionResponse = new CourseSectionResponse();
+            courseSectionResponse.setSectionCode(courseSection.getSectionCode());
+            courseSectionResponse.setSectionName(courseSection.getSectionName());
+            List<SectionCurriculumItem> sectionCurriculumItems = sectionCurriculumItemRepository.getSectionCurriculumItemByCourseSection(courseSection);
+            List<CurriculumItemResponse> curriculumItemResponses = new ArrayList<>();
+            for (SectionCurriculumItem sectionCurriculumItem : sectionCurriculumItems) {
+                CurriculumItemResponse curriculumItemResponse = new CurriculumItemResponse();
+                curriculumItemResponse.setTitle(sectionCurriculumItem.getTitle());
+                curriculumItemResponse.setDescription(sectionCurriculumItem.getDescription());
+                curriculumItemResponse.setCurriculumItemType(sectionCurriculumItem.getCurriculumItemType());
+                curriculumItemResponses.add(curriculumItemResponse);
+            }
+            courseSectionResponse.setCurriculumItems(curriculumItemResponses);
+            courseSectionResponses.add(courseSectionResponse);
+        }
+        courseResponse.setCourseSections(courseSectionResponses);
         return courseResponse;
     }
 
@@ -279,5 +324,49 @@ public class CourseServiceImpl implements CourseService {
         addSectionCurriculumItemResponse.setStatusCode(VarList.RSP_SUCCESS);
         addSectionCurriculumItemResponse.setSectionItemCode(sectionCurriculumItem.getCode());
         return addSectionCurriculumItemResponse;
+    }
+
+    @Override
+    public SuccessResponse addVideo(AddVideoRequest addVideoRequest) {
+        authentication();
+        final String courseCode = addVideoRequest.getCourseCode();
+        final String curriculumItemCode = addVideoRequest.getCurriculumItemCode();
+        final String generatedVideoName = addVideoRequest.getGeneratedVideoName();
+        final Double videoLength = addVideoRequest.getVideoLength();
+        final String originalVideoName = addVideoRequest.getOriginalVideoName();
+
+        CurriculumItemFileType curriculumItemFileType = curriculumItemFileTypeRepository.getCurriculumItemFileTypeById(1);
+
+        if (curriculumItemFileType == null)
+            throw new ErrorException("Curriculum item file type not found", VarList.RSP_NO_DATA_FOUND);
+
+        if (courseCode == null || courseCode.isEmpty() ||
+                curriculumItemCode == null || curriculumItemCode.isEmpty() ||
+                generatedVideoName == null || generatedVideoName.isEmpty() ||
+                videoLength == null || videoLength.toString().isEmpty() ||
+                originalVideoName == null || originalVideoName.isEmpty())
+            throw new ErrorException("Invalid request", VarList.RSP_NO_DATA_FOUND);
+        Course course = courseRepository.getCourseByCode(courseCode);
+        if (course == null)
+            throw new ErrorException("Invalid course code", VarList.RSP_NO_DATA_FOUND);
+        SectionCurriculumItem sectionCurriculumItem = sectionCurriculumItemRepository.getSectionCurriculumItemByCode(curriculumItemCode);
+        if (sectionCurriculumItem == null)
+            throw new ErrorException("Invalid curriculum item code", VarList.RSP_NO_DATA_FOUND);
+        if (!sectionCurriculumItem.getCourseSection().getCourse().equals(course))
+            throw new ErrorException("Section Curriculum Item Not applicable to course.", VarList.RSP_NO_DATA_FOUND);
+
+
+        CurriculumItemFile curriculumItemFile = new CurriculumItemFile();
+        curriculumItemFile.setTitle(originalVideoName);
+        curriculumItemFile.setUrl(Config.VIDEOS_UPLOAD_URL + generatedVideoName);
+        curriculumItemFile.setVideoLength(videoLength);
+        curriculumItemFile.setSectionCurriculumItem(sectionCurriculumItem);
+        curriculumItemFile.setCurriculumItemFileTypes(curriculumItemFileType);
+        curriculumItemFileRepository.save(curriculumItemFile);
+
+        SuccessResponse successResponse = new SuccessResponse();
+        successResponse.setMessage("Lecture video added successfully");
+        successResponse.setVariable(VarList.RSP_SUCCESS);
+        return successResponse;
     }
 }
