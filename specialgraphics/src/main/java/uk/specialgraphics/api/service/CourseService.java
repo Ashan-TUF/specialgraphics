@@ -4,10 +4,7 @@ import uk.specialgraphics.api.payload.request.AddSectionCurriculumItemRequest;
 import uk.specialgraphics.api.payload.request.AddSectionRequest;
 import uk.specialgraphics.api.payload.request.AddVideoRequest;
 import uk.specialgraphics.api.payload.request.CourseRequest;
-import uk.specialgraphics.api.payload.response.AddCourseSectionResponse;
-import uk.specialgraphics.api.payload.response.AddSectionCurriculumItemResponse;
-import uk.specialgraphics.api.payload.response.CourseResponse;
-import uk.specialgraphics.api.payload.response.SuccessResponse;
+import uk.specialgraphics.api.payload.response.*;
 
 import java.util.List;
 
@@ -25,4 +22,8 @@ public interface CourseService {
     AddSectionCurriculumItemResponse addSectionItem(AddSectionCurriculumItemRequest addSectionCurriculumItemRequest);
 
     SuccessResponse addVideo(AddVideoRequest addVideoRequest);
+
+    List<CurriculumItemResponse> getCurriculumItemsBySectionCode(String sectionCode);
+
+    List<CourseSectionResponse> getCourseSectionsByCourseCode(String courseCode);
 }

@@ -369,4 +369,52 @@ public class CourseServiceImpl implements CourseService {
         successResponse.setVariable(VarList.RSP_SUCCESS);
         return successResponse;
     }
+
+    @Override
+    public List<CurriculumItemResponse> getCurriculumItemsBySectionCode(String sectionCode) {
+        authentication();
+        CourseSection courseSection = courseSectionRepository.getCourseSectionBySectionCode(sectionCode);
+        if (courseSection == null)
+            throw new ErrorException("Invalid section code", VarList.RSP_NO_DATA_FOUND);
+        List<SectionCurriculumItem> sectionCurriculumItems = sectionCurriculumItemRepository.getSectionCurriculumItemByCourseSection(courseSection);
+        List<CurriculumItemResponse> curriculumItemResponses = new ArrayList<>();
+        for (SectionCurriculumItem sectionCurriculumItem : sectionCurriculumItems) {
+            CurriculumItemResponse curriculumItemResponse = new CurriculumItemResponse();
+            curriculumItemResponse.setItemCode(sectionCurriculumItem.getCode());
+            curriculumItemResponse.setDescription(sectionCurriculumItem.getDescription());
+            curriculumItemResponse.setTitle(sectionCurriculumItem.getTitle());
+            curriculumItemResponse.setCurriculumItemType(sectionCurriculumItem.getCurriculumItemType());
+            List<CurriculumItemFileResponse> curriculumItemFileResponses = new ArrayList<>();
+            List<CurriculumItemFile> curriculumItemFileList = curriculumItemFileRepository.getCurriculumItemFileBySectionCurriculumItem(sectionCurriculumItem);
+            for (CurriculumItemFile curriculumItemFile : curriculumItemFileList) {
+                CurriculumItemFileResponse curriculumItemFileResponse = new CurriculumItemFileResponse();
+                curriculumItemFileResponse.setTitle(curriculumItemFile.getTitle());
+                curriculumItemFileResponse.setUrl(curriculumItemFile.getUrl());
+                curriculumItemFileResponse.setVideoLength(curriculumItemFile.getVideoLength());
+                curriculumItemFileResponse.setCurriculumItemFileType(curriculumItemFile.getCurriculumItemFileTypes());
+                curriculumItemFileResponses.add(curriculumItemFileResponse);
+            }
+            curriculumItemResponse.setCurriculumItemFiles(curriculumItemFileResponses);
+            curriculumItemResponses.add(curriculumItemResponse);
+        }
+        return curriculumItemResponses;
+    }
+
+    @Override
+    public List<CourseSectionResponse> getCourseSectionsByCourseCode(String courseCode) {
+        authentication();
+        Course course = courseRepository.getCourseByCode(courseCode);
+        if (course == null)
+            throw new ErrorException("Invalid course code", VarList.RSP_NO_DATA_FOUND);
+        List<CourseSectionResponse> courseSectionResponses = new ArrayList<>();
+        List<CourseSection> courseSections = courseSectionRepository.getCourseSectionByCourse(course);
+        for (CourseSection courseSection : courseSections) {
+            CourseSectionResponse courseSectionResponse = new CourseSectionResponse();
+            courseSectionResponse.setSectionCode(courseSection.getSectionCode());
+            courseSectionResponse.setSectionName(courseSection.getSectionName());
+            courseSectionResponses.add(courseSectionResponse);
+        }
+        return courseSectionResponses;
+
+    }
 }
