@@ -10,17 +10,14 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Table(name = "course_section")
-public class CourseSection {
+@Table(name = "quize")
+public class Quize {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
-    @Column(name = "section_code")
-    private String sectionCode;
-    @Column(name = "section_name")
-    private String sectionName;
+
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "course")
-    private Course course;
-} 
+    @JoinColumn(name = "section_curriculum_item_id")
+    private SectionCurriculumItem sectionCurriculumItem;
+}

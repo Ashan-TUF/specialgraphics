@@ -2,10 +2,7 @@ package uk.specialgraphics.api.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import uk.specialgraphics.api.payload.request.AddSectionCurriculumItemRequest;
-import uk.specialgraphics.api.payload.request.AddSectionRequest;
-import uk.specialgraphics.api.payload.request.AddVideoRequest;
-import uk.specialgraphics.api.payload.request.CourseRequest;
+import uk.specialgraphics.api.payload.request.*;
 import uk.specialgraphics.api.payload.response.*;
 import uk.specialgraphics.api.service.CourseService;
 
@@ -54,12 +51,25 @@ public class CourseController {
     }
 
     @GetMapping("/getCurriculumItemsBySectionCode/{sectionCode}")
-    public List<CurriculumItemResponse> getCurriculumItemsBySectionCode(@PathVariable String sectionCode) {
+    public CourseSectionResponse getCurriculumItemsBySectionCode(@PathVariable String sectionCode) {
         return courseService.getCurriculumItemsBySectionCode(sectionCode);
     }
 
     @GetMapping("/getCourseSectionsByCourseCode/{courseCode}")
     public List<CourseSectionResponse> getCourseSectionsByCourseCode(@PathVariable String courseCode) {
         return courseService.getCourseSectionsByCourseCode(courseCode);
+    }
+
+    @GetMapping("/addQuize/{curriculumItemCode}")
+    public SuccessResponse addQuize(@PathVariable String curriculumItemCode) {
+        return courseService.addNewQuiz(curriculumItemCode);
+    }
+    @PostMapping("/addQuizItem")
+    public SuccessResponse addQuizeItem(AddQuizeItemRequest addQuizeItemRequest){
+        return  courseService.AddNewQuizeItem(addQuizeItemRequest);
+    }
+    @GetMapping("/getQuizItemsByCurriculumItemCode/{curriculumItemCode}")
+    public QuizesInCurriculumItemResponse getQuizItemsByCurriculumItemCode(@PathVariable String curriculumItemCode) {
+        return courseService.getQuizesByCurriculumItemCode(curriculumItemCode);
     }
 }
