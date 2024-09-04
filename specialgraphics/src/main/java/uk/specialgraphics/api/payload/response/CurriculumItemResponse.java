@@ -14,5 +14,6 @@ public class CurriculumItemResponse {
     private String title;
     private CurriculumItemType curriculumItemType;
     private List<CurriculumItemFileResponse> curriculumItemFiles;
+    private Boolean isQuizeAvailable;
     
 }

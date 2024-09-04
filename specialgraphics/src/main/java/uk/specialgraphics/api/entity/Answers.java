@@ -10,17 +10,21 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Table(name = "course_section")
-public class CourseSection {
+@Table(name = "answer")
+public class Answers {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
-    @Column(name = "section_code")
-    private String sectionCode;
-    @Column(name = "section_name")
-    private String sectionName;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "course")
-    private Course course;
-} 
+
+    @Column(name = "answer")
+    private String answer;
+
+    @ManyToOne
+    @JoinColumn(name = "quiz_items_id", nullable = false)
+    private QuizItems quizItems;
+
+    @Column(name="isCorrect",nullable = false)
+    private boolean isCorrect;
+
+}

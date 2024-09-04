@@ -1,9 +1,6 @@
 package uk.specialgraphics.api.service;
 
-import uk.specialgraphics.api.payload.request.AddSectionCurriculumItemRequest;
-import uk.specialgraphics.api.payload.request.AddSectionRequest;
-import uk.specialgraphics.api.payload.request.AddVideoRequest;
-import uk.specialgraphics.api.payload.request.CourseRequest;
+import uk.specialgraphics.api.payload.request.*;
 import uk.specialgraphics.api.payload.response.*;
 
 import java.util.List;
@@ -23,7 +20,15 @@ public interface CourseService {
 
     SuccessResponse addVideo(AddVideoRequest addVideoRequest);
 
-    List<CurriculumItemResponse> getCurriculumItemsBySectionCode(String sectionCode);
+    CourseSectionResponse getCurriculumItemsBySectionCode(String sectionCode);
 
     List<CourseSectionResponse> getCourseSectionsByCourseCode(String courseCode);
+
+    SuccessResponse addNewQuiz(String curriculumItemCode);
+
+
+    SuccessResponse AddNewQuizeItem(AddQuizeItemRequest addQuizeItemRequest);
+
+    QuizesInCurriculumItemResponse getQuizesByCurriculumItemCode(String curiyculumCode);
+
 }
