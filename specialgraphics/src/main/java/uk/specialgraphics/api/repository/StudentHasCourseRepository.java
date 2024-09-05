@@ -6,5 +6,6 @@ import uk.specialgraphics.api.entity.GeneralUserProfile;
 import uk.specialgraphics.api.entity.StudentHasCourse;
 
 public interface StudentHasCourseRepository extends JpaRepository<StudentHasCourse, Integer> {
-    StudentHasCourse getStudentHasCourseCourseAndGeneralUserProfile(Course course, GeneralUserProfile profile);
+
+    StudentHasCourse getStudentHasCourseByCourseAndGeneralUserProfile(Course course, GeneralUserProfile profile);
 }
