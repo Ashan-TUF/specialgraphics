@@ -1,6 +1,5 @@
 package uk.specialgraphics.api.service.impl;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -381,8 +380,8 @@ public class CourseServiceImpl implements CourseService {
             curriculumItemResponse.setCurriculumItemFiles(curriculumItemFileResponses);
             curriculumItemResponses.add(curriculumItemResponse);
 
-            Quize quizeBySectionCurriculumItemId = quizeRepository.getQuizeBySectionCurriculumItemId(sectionCurriculumItem.getId());
-            if (quizeBySectionCurriculumItemId == null) {
+            Quiz quizBySectionCurriculumItemId = quizeRepository.getQuizBySectionCurriculumItemId(sectionCurriculumItem.getId());
+            if (quizBySectionCurriculumItemId == null) {
                 curriculumItemResponse.setIsQuizeAvailable(false);
             } else {
                 curriculumItemResponse.setIsQuizeAvailable(true);
@@ -420,16 +419,16 @@ public class CourseServiceImpl implements CourseService {
         authentication();
         SectionCurriculumItem sectionCurriculumItemByCode = sectionCurriculumItemRepository.getSectionCurriculumItemByCode(curriculumItemCode);
         if (sectionCurriculumItemByCode == null)
-            throw new ErrorException("Invalid curriculum Item Code", VarList.RSP_NO_DATA_FOUND);
-        Quize quizeBySectionCurriculumItemId = quizeRepository.getQuizeBySectionCurriculumItemId(sectionCurriculumItemByCode.getId());
-        if (quizeBySectionCurriculumItemId != null)
-            throw new ErrorException("Already Added A MCQ Item For This Section Item", VarList.RSP_NO_DATA_FOUND);
-        Quize quize = new Quize();
-        quize.setSectionCurriculumItem(sectionCurriculumItemByCode);
-        quizeRepository.save(quize);
+            throw new ErrorException("Invalid curriculum item code", VarList.RSP_NO_DATA_FOUND);
+        Quiz quizBySectionCurriculumItemId = quizeRepository.getQuizBySectionCurriculumItemId(sectionCurriculumItemByCode.getId());
+        if (quizBySectionCurriculumItemId != null)
+            throw new ErrorException("Already added a MCQ item for this section item", VarList.RSP_NO_DATA_FOUND);
+        Quiz quiz = new Quiz();
+        quiz.setSectionCurriculumItem(sectionCurriculumItemByCode);
+        quizeRepository.save(quiz);
         SuccessResponse successResponse = new SuccessResponse();
-        successResponse.setVariable("200");
-        successResponse.setMessage("MCQ Item Added Success");
+        successResponse.setVariable(VarList.RSP_SUCCESS);
+        successResponse.setMessage("MCQ item added success");
         return successResponse;
     }
 
@@ -449,12 +448,12 @@ public class CourseServiceImpl implements CourseService {
         SectionCurriculumItem sectionCurriculumItemByCode = sectionCurriculumItemRepository.getSectionCurriculumItemByCode(curriculumItemCode);
         if (sectionCurriculumItemByCode == null)
             throw new ErrorException("Invalid Curriculum Item Code", VarList.RSP_NO_DATA_FOUND);
-        Quize quize = quizeRepository.getQuizeBySectionCurriculumItemId(sectionCurriculumItemByCode.getId());
-        if (quize == null) throw new ErrorException("No Quiz Item Available", VarList.RSP_NO_DATA_FOUND);
+        Quiz quiz = quizeRepository.getQuizBySectionCurriculumItemId(sectionCurriculumItemByCode.getId());
+        if (quiz == null) throw new ErrorException("No Quiz Item Available", VarList.RSP_NO_DATA_FOUND);
 
         QuizItems quizItems = new QuizItems();
         quizItems.setQuestion(question);
-        quizItems.setQuize(quize);
+        quizItems.setQuiz(quiz);
         quizItems.setCode(UUID.randomUUID().toString());
 
         ArrayList<Answers> answersList = new ArrayList<>();
@@ -513,11 +512,11 @@ public class CourseServiceImpl implements CourseService {
         if (sectionCurriculumItemByCode == null)
             throw new ErrorException("Invalid curriculum Item Code", VarList.RSP_NO_DATA_FOUND);
 
-        Quize quizeBySectionCurriculumItemId = quizeRepository.getQuizeBySectionCurriculumItemId(sectionCurriculumItemByCode.getId());
-        if (quizeBySectionCurriculumItemId == null)
+        Quiz quizBySectionCurriculumItemId = quizeRepository.getQuizBySectionCurriculumItemId(sectionCurriculumItemByCode.getId());
+        if (quizBySectionCurriculumItemId == null)
             throw new ErrorException("Invalid course code", VarList.RSP_NO_DATA_FOUND);
 
-        List<QuizItems> allByQuizeId = quizeItemRepository.getAllByQuize(quizeBySectionCurriculumItemId);
+        List<QuizItems> allByQuizeId = quizeItemRepository.getAllByQuiz(quizBySectionCurriculumItemId);
 
         QuizesInCurriculumItemResponse quizesInCurriculumItemResponse = new QuizesInCurriculumItemResponse();
         quizesInCurriculumItemResponse.setCurriculumItemCode(sectionCurriculumItemByCode.getCode());
