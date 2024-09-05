@@ -5,31 +5,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Table(name = "quiz_items")
-public class QuizItems {
+@Table(name = "quiz")
+public class Quiz {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "quiz_id")
-    private Quiz quiz;
-
-    @Column(name = "question")
-    private String question;
-
-    @Column(name = "code")
-    private String code;
-
-    @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Answers> answers;
-
-
+    @JoinColumn(name = "section_curriculum_item_id")
+    private SectionCurriculumItem sectionCurriculumItem;
 }
