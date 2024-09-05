@@ -72,7 +72,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         if (course == null)
             throw new ErrorException("Invalid course code", VarList.RSP_NO_DATA_FOUND);
 
-        StudentHasCourse studentHasCourse = studentHasCourseRepository.getStudentHasCourseCourseAndGeneralUserProfile(course, profile);
+        StudentHasCourse studentHasCourse = studentHasCourseRepository.getStudentHasCourseByCourseAndGeneralUserProfile(course, profile);
         if (studentHasCourse != null)
             throw new ErrorException("The student has already purchased this course", VarList.RSP_NO_DATA_FOUND);
 
