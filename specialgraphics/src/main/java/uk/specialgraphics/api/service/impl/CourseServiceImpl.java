@@ -37,14 +37,7 @@ public class CourseServiceImpl implements CourseService {
 
 
     @Autowired
-    public CourseServiceImpl(UserProfileService userProfileService,
-                             CourseRepository courseRepository,
-                             CourseSectionRepository courseSectionRepository,
-                             SectionCurriculumItemRepository sectionCurriculumItemRepository,
-                             CurriculumItemFileTypeRepository curriculumItemFileTypeRepository,
-                             CurriculumItemFileRepository curriculumItemFileRepository,
-                             QuizeRepository quizeRepository,
-                             QuizeItemRepository quizeItemRepository,AnswerRepository answerRepository) {
+    public CourseServiceImpl(UserProfileService userProfileService, CourseRepository courseRepository, CourseSectionRepository courseSectionRepository, SectionCurriculumItemRepository sectionCurriculumItemRepository, CurriculumItemFileTypeRepository curriculumItemFileTypeRepository, CurriculumItemFileRepository curriculumItemFileRepository, QuizeRepository quizeRepository, QuizeItemRepository quizeItemRepository, AnswerRepository answerRepository) {
         this.userProfileService = userProfileService;
         this.courseRepository = courseRepository;
         this.courseSectionRepository = courseSectionRepository;
@@ -53,7 +46,7 @@ public class CourseServiceImpl implements CourseService {
         this.curriculumItemFileRepository = curriculumItemFileRepository;
         this.quizeRepository = quizeRepository;
         this.quizeItemRepository = quizeItemRepository;
-        this.answerRepository=answerRepository;
+        this.answerRepository = answerRepository;
     }
 
 
@@ -65,11 +58,9 @@ public class CourseServiceImpl implements CourseService {
         username = authentication.getName();
         profile = userProfileService.getProfile(username);
 
-        if (profile == null)
-            throw new ErrorException("User not found", VarList.RSP_NO_DATA_FOUND);
+        if (profile == null) throw new ErrorException("User not found", VarList.RSP_NO_DATA_FOUND);
 
-        if (profile.getIsActive() != 1)
-            throw new ErrorException("User not active", VarList.RSP_NO_DATA_FOUND);
+        if (profile.getIsActive() != 1) throw new ErrorException("User not active", VarList.RSP_NO_DATA_FOUND);
 
         if (profile.getGupType().getId() != 1)
             throw new ErrorException("You are not a instructor to this operation", VarList.RSP_NO_DATA_FOUND);
@@ -224,8 +215,7 @@ public class CourseServiceImpl implements CourseService {
 
         Course course = courseRepository.getCourseByCode(courseCode);
 
-        if (course == null)
-            throw new ErrorException("Invalid course code", VarList.RSP_NO_DATA_FOUND);
+        if (course == null) throw new ErrorException("Invalid course code", VarList.RSP_NO_DATA_FOUND);
 
         boolean isChanged = false;
         if (courseTitle != null && !courseTitle.isEmpty()) {
@@ -279,11 +269,9 @@ public class CourseServiceImpl implements CourseService {
         if (courseCode == null || courseCode.isEmpty() || sectionName == null || sectionName.isEmpty())
             throw new ErrorException("Invalid request", VarList.RSP_NO_DATA_FOUND);
         Course course = courseRepository.getCourseByCode(courseCode);
-        if (course == null)
-            throw new ErrorException("Invalid request", VarList.RSP_NO_DATA_FOUND);
+        if (course == null) throw new ErrorException("Invalid request", VarList.RSP_NO_DATA_FOUND);
         CourseSection courseSection = courseSectionRepository.getCourseSectionByCourseAndSectionName(course, sectionName);
-        if (courseSection != null)
-            throw new ErrorException("Already added", VarList.RSP_ERROR);
+        if (courseSection != null) throw new ErrorException("Already added", VarList.RSP_ERROR);
         courseSection = new CourseSection();
         courseSection.setCourse(course);
         courseSection.setSectionName(sectionName);
@@ -305,18 +293,14 @@ public class CourseServiceImpl implements CourseService {
         final String description = addSectionCurriculumItemRequest.getDescription();
         final String title = addSectionCurriculumItemRequest.getTitle();
 
-        if (courseCode == null || courseCode.isEmpty() || courseSectionCode == null ||
-                courseSectionCode.isEmpty() || description == null || description.isEmpty() || title == null || title.isEmpty())
+        if (courseCode == null || courseCode.isEmpty() || courseSectionCode == null || courseSectionCode.isEmpty() || description == null || description.isEmpty() || title == null || title.isEmpty())
             throw new ErrorException("Invalid request", VarList.RSP_NO_DATA_FOUND);
         Course course = courseRepository.getCourseByCode(courseCode);
-        if (course == null)
-            throw new ErrorException("Invalid course code", VarList.RSP_NO_DATA_FOUND);
+        if (course == null) throw new ErrorException("Invalid course code", VarList.RSP_NO_DATA_FOUND);
         CourseSection courseSection = courseSectionRepository.getCourseSectionBySectionCode(courseSectionCode);
-        if (courseSection == null)
-            throw new ErrorException("Invalid course section code", VarList.RSP_NO_DATA_FOUND);
+        if (courseSection == null) throw new ErrorException("Invalid course section code", VarList.RSP_NO_DATA_FOUND);
         SectionCurriculumItem sectionCurriculumItem = sectionCurriculumItemRepository.getSectionCurriculumItemByCourseSectionAndTitle(courseSection, title);
-        if (sectionCurriculumItem != null)
-            throw new ErrorException("Already added", VarList.RSP_NO_DATA_FOUND);
+        if (sectionCurriculumItem != null) throw new ErrorException("Already added", VarList.RSP_NO_DATA_FOUND);
 
         sectionCurriculumItem = new SectionCurriculumItem();
         sectionCurriculumItem.setCode(UUID.randomUUID().toString());
@@ -346,15 +330,10 @@ public class CourseServiceImpl implements CourseService {
         if (curriculumItemFileType == null)
             throw new ErrorException("Curriculum item file type not found", VarList.RSP_NO_DATA_FOUND);
 
-        if (courseCode == null || courseCode.isEmpty() ||
-                curriculumItemCode == null || curriculumItemCode.isEmpty() ||
-                generatedVideoName == null || generatedVideoName.isEmpty() ||
-                videoLength == null || videoLength.toString().isEmpty() ||
-                originalVideoName == null || originalVideoName.isEmpty())
+        if (courseCode == null || courseCode.isEmpty() || curriculumItemCode == null || curriculumItemCode.isEmpty() || generatedVideoName == null || generatedVideoName.isEmpty() || videoLength == null || videoLength.toString().isEmpty() || originalVideoName == null || originalVideoName.isEmpty())
             throw new ErrorException("Invalid request", VarList.RSP_NO_DATA_FOUND);
         Course course = courseRepository.getCourseByCode(courseCode);
-        if (course == null)
-            throw new ErrorException("Invalid course code", VarList.RSP_NO_DATA_FOUND);
+        if (course == null) throw new ErrorException("Invalid course code", VarList.RSP_NO_DATA_FOUND);
         SectionCurriculumItem sectionCurriculumItem = sectionCurriculumItemRepository.getSectionCurriculumItemByCode(curriculumItemCode);
         if (sectionCurriculumItem == null)
             throw new ErrorException("Invalid curriculum item code", VarList.RSP_NO_DATA_FOUND);
@@ -380,8 +359,7 @@ public class CourseServiceImpl implements CourseService {
     public CourseSectionResponse getCurriculumItemsBySectionCode(String sectionCode) {
         authentication();
         CourseSection courseSection = courseSectionRepository.getCourseSectionBySectionCode(sectionCode);
-        if (courseSection == null)
-            throw new ErrorException("Invalid section code", VarList.RSP_NO_DATA_FOUND);
+        if (courseSection == null) throw new ErrorException("Invalid section code", VarList.RSP_NO_DATA_FOUND);
         List<SectionCurriculumItem> sectionCurriculumItems = sectionCurriculumItemRepository.getSectionCurriculumItemByCourseSection(courseSection);
         List<CurriculumItemResponse> curriculumItemResponses = new ArrayList<>();
         for (SectionCurriculumItem sectionCurriculumItem : sectionCurriculumItems) {
@@ -424,8 +402,7 @@ public class CourseServiceImpl implements CourseService {
     public List<CourseSectionResponse> getCourseSectionsByCourseCode(String courseCode) {
         authentication();
         Course course = courseRepository.getCourseByCode(courseCode);
-        if (course == null)
-            throw new ErrorException("Invalid course code", VarList.RSP_NO_DATA_FOUND);
+        if (course == null) throw new ErrorException("Invalid course code", VarList.RSP_NO_DATA_FOUND);
         List<CourseSectionResponse> courseSectionResponses = new ArrayList<>();
         List<CourseSection> courseSections = courseSectionRepository.getCourseSectionByCourse(course);
         for (CourseSection courseSection : courseSections) {
@@ -467,20 +444,13 @@ public class CourseServiceImpl implements CourseService {
         final String answer4 = addQuizeItemRequest.getAnswer4();
         final int correctAnswer = addQuizeItemRequest.getCorrectAnswer();
 
-        if (question == null || question.isEmpty() ||
-                curriculumItemCode == null || curriculumItemCode.isEmpty() ||
-                answer1 == null || answer1.isEmpty() ||
-                answer2 == null || answer2.isEmpty() ||
-                answer3 == null || answer3.isEmpty() ||
-                answer4 == null || answer4.isEmpty() ||
-                correctAnswer == 0)
+        if (question == null || question.isEmpty() || curriculumItemCode == null || curriculumItemCode.isEmpty() || answer1 == null || answer1.isEmpty() || answer2 == null || answer2.isEmpty() || answer3 == null || answer3.isEmpty() || answer4 == null || answer4.isEmpty() || correctAnswer == 0)
             throw new ErrorException("Invalid request", VarList.RSP_NO_DATA_FOUND);
         SectionCurriculumItem sectionCurriculumItemByCode = sectionCurriculumItemRepository.getSectionCurriculumItemByCode(curriculumItemCode);
         if (sectionCurriculumItemByCode == null)
             throw new ErrorException("Invalid Curriculum Item Code", VarList.RSP_NO_DATA_FOUND);
         Quize quize = quizeRepository.getQuizeBySectionCurriculumItemId(sectionCurriculumItemByCode.getId());
-        if (quize == null)
-            throw new ErrorException("No Quiz Item Available", VarList.RSP_NO_DATA_FOUND);
+        if (quize == null) throw new ErrorException("No Quiz Item Available", VarList.RSP_NO_DATA_FOUND);
 
         QuizItems quizItems = new QuizItems();
         quizItems.setQuestion(question);
@@ -553,13 +523,13 @@ public class CourseServiceImpl implements CourseService {
         quizesInCurriculumItemResponse.setCurriculumItemCode(sectionCurriculumItemByCode.getCode());
         ArrayList<QuestionAndAnswerResponse> questionAndAnswerResponses = new ArrayList<>();
 
-        for (QuizItems quizItems:allByQuizeId){
+        for (QuizItems quizItems : allByQuizeId) {
             QuestionAndAnswerResponse questionAndAnswerResponse = new QuestionAndAnswerResponse();
             questionAndAnswerResponse.setQuestionItemCode(quizItems.getCode());
             questionAndAnswerResponse.setQuestion(quizItems.getQuestion());
             List<Answers> allByQuizItems = answerRepository.getAllByQuizItems(quizItems);
-            ArrayList<AnswerResponse> answerResponses=new ArrayList<>();
-            for (Answers answers:allByQuizItems){
+            ArrayList<AnswerResponse> answerResponses = new ArrayList<>();
+            for (Answers answers : allByQuizItems) {
                 AnswerResponse answerResponse = new AnswerResponse();
                 answerResponse.setAnswer(answers.getAnswer());
                 answerResponse.setIstrue(answers.isCorrect());
@@ -567,9 +537,76 @@ public class CourseServiceImpl implements CourseService {
             }
             questionAndAnswerResponse.setAnswerResponses(answerResponses);
             questionAndAnswerResponses.add(questionAndAnswerResponse);
-        }quizesInCurriculumItemResponse.setAnswerResponses(questionAndAnswerResponses);
-
+        }
+        quizesInCurriculumItemResponse.setAnswerResponses(questionAndAnswerResponses);
 
         return quizesInCurriculumItemResponse;
+    }
+
+    @Override
+    public SuccessResponse updateNewQuizeItem(UpdateQuizeItemRequest updateQuizeItemRequest) {
+        authentication();
+        final String questionItemCode = updateQuizeItemRequest.getQuestionItemCode();
+        final String question = updateQuizeItemRequest.getQuestion();
+        final String answer1 = updateQuizeItemRequest.getAnswer1();
+        final String answer2 = updateQuizeItemRequest.getAnswer2();
+        final String answer3 = updateQuizeItemRequest.getAnswer3();
+        final String answer4 = updateQuizeItemRequest.getAnswer4();
+        final int correctAnswer = updateQuizeItemRequest.getCorrectAnswer();
+
+        if (question == null || question.isEmpty() || questionItemCode == null || questionItemCode.isEmpty() || answer1 == null || answer1.isEmpty() || answer2 == null || answer2.isEmpty() || answer3 == null || answer3.isEmpty() || answer4 == null || answer4.isEmpty() || correctAnswer == 0)
+            throw new ErrorException("Invalid request", VarList.RSP_NO_DATA_FOUND);
+
+        QuizItems quizItemsByCode = quizeItemRepository.getQuizItemsByCode(questionItemCode);
+        if (quizItemsByCode == null) throw new ErrorException("Invalid Quiz Item ", VarList.RSP_NO_DATA_FOUND);
+
+        ArrayList<Answers> answersList = new ArrayList<>();
+        Answers answers1 = new Answers();
+        answers1.setAnswer(answer1);
+        if (correctAnswer == 1) {
+            answers1.setCorrect(true);
+        } else {
+            answers1.setCorrect(false);
+        }
+        answers1.setQuizItems(quizItemsByCode);
+        answersList.add(answers1);
+
+
+        Answers answers2 = new Answers();
+        answers2.setAnswer(answer2);
+        if (correctAnswer == 2) {
+            answers2.setCorrect(true);
+        } else {
+            answers2.setCorrect(false);
+        }
+        answers2.setQuizItems(quizItemsByCode);
+        answersList.add(answers2);
+        Answers answers3 = new Answers();
+        answers3.setAnswer(answer3);
+        if (correctAnswer == 3) {
+            answers3.setCorrect(true);
+        } else {
+            answers3.setCorrect(false);
+        }
+        answers3.setQuizItems(quizItemsByCode);
+        answersList.add(answers3);
+        Answers answers4 = new Answers();
+        answers4.setAnswer(answer4);
+        if (correctAnswer == 4) {
+            answers4.setCorrect(true);
+        } else {
+            answers4.setCorrect(false);
+        }
+        answers4.setQuizItems(quizItemsByCode);
+        answersList.add(answers4);
+        quizItemsByCode.setAnswers(answersList);
+
+        quizeItemRepository.save(quizItemsByCode);
+
+        SuccessResponse successResponse = new SuccessResponse();
+        successResponse.setVariable("200");
+        successResponse.setMessage("Update success");
+        return successResponse;
+
     }
 }

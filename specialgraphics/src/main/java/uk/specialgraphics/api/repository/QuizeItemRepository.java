@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface QuizeItemRepository extends JpaRepository<QuizItems, Integer> {
     List<QuizItems> getAllByQuize(Quize quize);
+    QuizItems getQuizItemsByCode(String code);
 }

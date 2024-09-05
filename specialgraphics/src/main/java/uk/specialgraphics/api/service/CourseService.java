@@ -31,4 +31,6 @@ public interface CourseService {
 
     QuizesInCurriculumItemResponse getQuizesByCurriculumItemCode(String curiyculumCode);
 
+    SuccessResponse updateNewQuizeItem(UpdateQuizeItemRequest updateQuizeItemRequest);
+
 }
