@@ -72,4 +72,9 @@ public class CourseController {
     public QuizesInCurriculumItemResponse getQuizItemsByCurriculumItemCode(@PathVariable String curriculumItemCode) {
         return courseService.getQuizesByCurriculumItemCode(curriculumItemCode);
     }
+
+    @PutMapping("/updateQuizItem")
+    public SuccessResponse updateQuizeItem(UpdateQuizeItemRequest updateQuizeItemRequest){
+        return  courseService.updateNewQuizeItem(updateQuizeItemRequest);
+    }
 }
