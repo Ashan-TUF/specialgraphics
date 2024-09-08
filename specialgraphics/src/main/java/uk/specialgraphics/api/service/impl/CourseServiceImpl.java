@@ -162,6 +162,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CourseResponse getCourseByCode(String courseCode) {
+        authentication();
         Course course = courseRepository.getCourseByCode(courseCode);
         if (course == null) {
             throw new ErrorException("Invalid course code", VarList.RSP_NO_DATA_FOUND);
@@ -607,5 +608,43 @@ public class CourseServiceImpl implements CourseService {
         successResponse.setMessage("Update success");
         return successResponse;
 
+    }
+
+    @Override
+    public GetCourseDetailsByCourseCodeResponse getCourseDetailsByCourseCode(String courseCode) {
+        Course course = courseRepository.getCourseByCode(courseCode);
+
+        if (course == null)
+            throw new ErrorException("Invalid course code", VarList.RSP_NO_DATA_FOUND);
+
+        GetCourseDetailsByCourseCodeResponse getCourseDetailsByCourseCodeResponse = new GetCourseDetailsByCourseCodeResponse();
+        getCourseDetailsByCourseCodeResponse.setCode(course.getCode());
+        getCourseDetailsByCourseCodeResponse.setTitle(course.getCourseTitle());
+        getCourseDetailsByCourseCodeResponse.setImg(course.getImg());
+        getCourseDetailsByCourseCodeResponse.setPromotionalVideo(course.getPromotionalVideo());
+        getCourseDetailsByCourseCodeResponse.setCreatedDate(course.getCreatedDate());
+        getCourseDetailsByCourseCodeResponse.setBuyCount(course.getBuyCount());
+        getCourseDetailsByCourseCodeResponse.setDescription(course.getDescription());
+        getCourseDetailsByCourseCodeResponse.setPoints(course.getPoints());
+        getCourseDetailsByCourseCodeResponse.setPrice(course.getPrice());
+        List<GetCourseSectionResponse> courseSections = new ArrayList<>();
+        List<CourseSection> courseSectionList = courseSectionRepository.getCourseSectionByCourse(course);
+        for (CourseSection courseSection : courseSectionList) {
+            GetCourseSectionResponse courseSectionResponse = new GetCourseSectionResponse();
+            courseSectionResponse.setSectionName(courseSection.getSectionName());
+            List<GetCurriculumItemResponse> curriculumItems = new ArrayList<>();
+            List<SectionCurriculumItem> sectionCurriculumItems = sectionCurriculumItemRepository.getSectionCurriculumItemByCourseSection(courseSection);
+            for (SectionCurriculumItem sectionCurriculumItem : sectionCurriculumItems) {
+                GetCurriculumItemResponse curriculumItemResponse = new GetCurriculumItemResponse();
+                curriculumItemResponse.setDescription(sectionCurriculumItem.getDescription());
+                curriculumItemResponse.setTitle(sectionCurriculumItem.getTitle());
+                curriculumItemResponse.setCurriculumItemType(sectionCurriculumItem.getCurriculumItemType());
+                curriculumItems.add(curriculumItemResponse);
+            }
+            courseSectionResponse.setCurriculumItems(curriculumItems);
+            courseSections.add(courseSectionResponse);
+        }
+        getCourseDetailsByCourseCodeResponse.setCourseSections(courseSections);
+        return getCourseDetailsByCourseCodeResponse;
     }
 }

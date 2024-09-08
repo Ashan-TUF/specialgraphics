@@ -54,7 +54,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                         "/api/files/upload",
                         "/register/add",
                         "/course/getAllCourses",
-                        "/course/getCourseByCode/{courseCode}"
+                        "/course/getCourseDetailsByCourseCode/{courseCode}"
 
                 ).permitAll().
                 // all other requests need to be authenticated
