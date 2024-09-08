@@ -64,17 +64,24 @@ public class CourseController {
     public SuccessResponse addQuize(@PathVariable String curriculumItemCode) {
         return courseService.addNewQuiz(curriculumItemCode);
     }
+
     @PostMapping("/addQuizItem")
-    public SuccessResponse addQuizeItem(AddQuizeItemRequest addQuizeItemRequest){
-        return  courseService.AddNewQuizeItem(addQuizeItemRequest);
+    public SuccessResponse addQuizeItem(AddQuizeItemRequest addQuizeItemRequest) {
+        return courseService.AddNewQuizeItem(addQuizeItemRequest);
     }
+
     @GetMapping("/getQuizItemsByCurriculumItemCode/{curriculumItemCode}")
     public QuizesInCurriculumItemResponse getQuizItemsByCurriculumItemCode(@PathVariable String curriculumItemCode) {
         return courseService.getQuizesByCurriculumItemCode(curriculumItemCode);
     }
 
     @PutMapping("/updateQuizItem")
-    public SuccessResponse updateQuizeItem(UpdateQuizeItemRequest updateQuizeItemRequest){
-        return  courseService.updateNewQuizeItem(updateQuizeItemRequest);
+    public SuccessResponse updateQuizeItem(UpdateQuizeItemRequest updateQuizeItemRequest) {
+        return courseService.updateNewQuizeItem(updateQuizeItemRequest);
+    }
+
+    @GetMapping("/getCourseDetailsByCourseCode/{courseCode}")
+    public GetCourseDetailsByCourseCodeResponse getCourseDetailsByCourseCode(@PathVariable String courseCode) {
+        return courseService.getCourseDetailsByCourseCode(courseCode);
     }
 }
