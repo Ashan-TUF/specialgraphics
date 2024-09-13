@@ -33,10 +33,11 @@ public class CourseServiceImpl implements CourseService {
     private final QuizeRepository quizeRepository;
     private final QuizeItemRepository quizeItemRepository;
     private final AnswerRepository answerRepository;
+    private final StudentHasCourseRepository studentHasCourseRepository;
 
 
     @Autowired
-    public CourseServiceImpl(UserProfileService userProfileService, CourseRepository courseRepository, CourseSectionRepository courseSectionRepository, SectionCurriculumItemRepository sectionCurriculumItemRepository, CurriculumItemFileTypeRepository curriculumItemFileTypeRepository, CurriculumItemFileRepository curriculumItemFileRepository, QuizeRepository quizeRepository, QuizeItemRepository quizeItemRepository, AnswerRepository answerRepository) {
+    public CourseServiceImpl(UserProfileService userProfileService, CourseRepository courseRepository, CourseSectionRepository courseSectionRepository, SectionCurriculumItemRepository sectionCurriculumItemRepository, CurriculumItemFileTypeRepository curriculumItemFileTypeRepository, CurriculumItemFileRepository curriculumItemFileRepository, QuizeRepository quizeRepository, QuizeItemRepository quizeItemRepository, AnswerRepository answerRepository, StudentHasCourseRepository studentHasCourseRepository) {
         this.userProfileService = userProfileService;
         this.courseRepository = courseRepository;
         this.courseSectionRepository = courseSectionRepository;
@@ -46,6 +47,7 @@ public class CourseServiceImpl implements CourseService {
         this.quizeRepository = quizeRepository;
         this.quizeItemRepository = quizeItemRepository;
         this.answerRepository = answerRepository;
+        this.studentHasCourseRepository = studentHasCourseRepository;
     }
 
 
@@ -63,6 +65,24 @@ public class CourseServiceImpl implements CourseService {
 
         if (profile.getGupType().getId() != 1)
             throw new ErrorException("You are not a instructor to this operation", VarList.RSP_NO_DATA_FOUND);
+    }
+
+
+    private GeneralUserProfile userAuthentication() {
+        Authentication authentication;
+        String username;
+        GeneralUserProfile profile;
+        authentication = SecurityContextHolder.getContext().getAuthentication();
+        username = authentication.getName();
+        profile = userProfileService.getProfile(username);
+
+        if (profile == null) throw new ErrorException("User not found", VarList.RSP_NO_DATA_FOUND);
+
+        if (profile.getIsActive() != 1) throw new ErrorException("User not active", VarList.RSP_NO_DATA_FOUND);
+
+        if (profile.getGupType().getId() != 2)
+            throw new ErrorException("You are not a Student to this operation", VarList.RSP_NO_DATA_FOUND);
+        return profile;
     }
 
     @Override
@@ -646,5 +666,25 @@ public class CourseServiceImpl implements CourseService {
         }
         getCourseDetailsByCourseCodeResponse.setCourseSections(courseSections);
         return getCourseDetailsByCourseCodeResponse;
+    }
+
+    @Override
+    public List<UserCourseResponse> getAllUserCourses() {
+        GeneralUserProfile generalUserProfile = userAuthentication();
+        List<StudentHasCourse> allByGeneralUserProfile = studentHasCourseRepository.getAllByGeneralUserProfile(generalUserProfile);
+        if(allByGeneralUserProfile==null)
+            throw new ErrorException("No Purchased Course", VarList.RSP_NO_DATA_FOUND);
+
+        ArrayList<UserCourseResponse> userCourseResponses = new ArrayList<>();
+        for (StudentHasCourse studentHasCourse:allByGeneralUserProfile){
+            Course course = studentHasCourse.getCourse();
+            UserCourseResponse userCourseResponse = new UserCourseResponse();
+            userCourseResponse.setCourseCode(course.getCode());
+            userCourseResponse.setTitle(course.getCourseTitle());
+            userCourseResponse.setImage(course.getImg());
+            userCourseResponse.setProgress(studentHasCourse.getProgress());
+            userCourseResponses.add(userCourseResponse);
+        }
+        return userCourseResponses;
     }
 }

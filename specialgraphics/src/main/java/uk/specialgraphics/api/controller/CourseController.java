@@ -84,4 +84,10 @@ public class CourseController {
     public GetCourseDetailsByCourseCodeResponse getCourseDetailsByCourseCode(@PathVariable String courseCode) {
         return courseService.getCourseDetailsByCourseCode(courseCode);
     }
+
+    @GetMapping("/getAllUserCourseDetails")
+    public List<UserCourseResponse> getAllUserCourseDetails() {
+        return courseService.getAllUserCourses();
+    }
+
 }
