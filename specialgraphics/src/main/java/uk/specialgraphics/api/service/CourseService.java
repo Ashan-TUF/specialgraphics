@@ -34,4 +34,6 @@ public interface CourseService {
     SuccessResponse updateNewQuizeItem(UpdateQuizeItemRequest updateQuizeItemRequest);
 
     GetCourseDetailsByCourseCodeResponse getCourseDetailsByCourseCode(String courseCode);
+
+List<UserCourseResponse> getAllUserCourses();
 }
