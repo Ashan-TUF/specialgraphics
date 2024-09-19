@@ -35,5 +35,9 @@ public interface CourseService {
 
     GetCourseDetailsByCourseCodeResponse getCourseDetailsByCourseCode(String courseCode);
 
-List<UserCourseResponse> getAllUserCourses();
+    List<UserCourseResponse> getAllUserCourses();
+
+    UserCourseViewResponse getUserCourseDetailsByCourseCode(String courseCode);
+
+    SuccessResponse addZip(CurriculumItemFileUploadRequest fileUploadRequest);
 }
