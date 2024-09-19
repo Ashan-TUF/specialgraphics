@@ -90,4 +90,16 @@ public class CourseController {
         return courseService.getAllUserCourses();
     }
 
+    @GetMapping("/getUserCourseDetailsByCourseCode/{courseCode}")
+    public UserCourseViewResponse getUserCourseDetailsByCourseCode(@PathVariable String courseCode) {
+        return courseService.getUserCourseDetailsByCourseCode(courseCode);
+    }
+
+    @PostMapping("/addFile")
+    public SuccessResponse addFile(CurriculumItemFileUploadRequest fileUploadRequest) {
+        return courseService.addZip(fileUploadRequest);
+    }
+
+
+
 }

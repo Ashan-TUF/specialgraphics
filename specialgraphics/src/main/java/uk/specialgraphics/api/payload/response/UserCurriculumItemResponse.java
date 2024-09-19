@@ -8,13 +8,13 @@ import java.util.List;
 
 @Data
 @ToString
-public class CurriculumItemResponse {
+public class UserCurriculumItemResponse {
     private String itemCode;
     private String description;
     private String title;
     private CurriculumItemType curriculumItemType;
-    private List<CurriculumItemFileResponse> curriculumItemFiles;
-    private  List<CurriculumItemZipFileResponse> curriculumItemZipFileResponses;
+    private List<UserCurriculumItemFileResponse> curriculumItemFiles;
+    private List<CurriculumItemZipFileResponse> CurriculumItemZipFileResponse;
     private Boolean isQuizeAvailable;
     
 }

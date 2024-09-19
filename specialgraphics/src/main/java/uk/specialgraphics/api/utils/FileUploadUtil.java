@@ -5,6 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 import uk.specialgraphics.api.config.Config;
 import uk.specialgraphics.api.payload.response.FileUploadResponse;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,8 +23,16 @@ public class FileUploadUtil {
             String path;
             if (type == "course-image") {
                 path = Config.COURSE_IMAGES_UPLOAD_URL;
+            }else if(type == "zip"){
+                path=Config.ZIP_UPLOAD_URL;
             } else {
                 path = Config.OTHERS_UPLOAD_URL;
+            }
+
+            File directory = new File(Config.UPLOAD_URL +  path);
+
+            if (!directory.exists()) {
+                directory.mkdirs();
             }
             Path savePath = Paths.get(Config.UPLOAD_URL + path, randomFilename);
             Files.write(savePath, file.getBytes());
