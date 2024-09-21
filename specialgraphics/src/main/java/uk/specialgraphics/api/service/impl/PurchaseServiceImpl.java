@@ -17,6 +17,7 @@ import uk.specialgraphics.api.service.UserProfileService;
 import uk.specialgraphics.api.utils.VarList;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -90,4 +91,21 @@ public class PurchaseServiceImpl implements PurchaseService {
         successResponse.setVariable(VarList.RSP_SUCCESS);
         return successResponse;
     }
+
+    @Override
+    public boolean verifyStudentOwnCourse(String courseCode) {
+        GeneralUserProfile profile = authentication();
+        Course course = courseRepository.getCourseByCode(courseCode);
+        boolean isVerify = false;
+        if (course == null)
+            throw new ErrorException("Invalid course code", VarList.RSP_NO_DATA_FOUND);
+
+        StudentHasCourse studentHasCourse = studentHasCourseRepository.getStudentHasCourseByCourseAndGeneralUserProfile(course, profile);
+        if (studentHasCourse == null)
+            isVerify = true;
+
+        return isVerify;
+
+    }
+
 }
