@@ -17,4 +17,8 @@ public class PurchaseController {
     public SuccessResponse addToStudentsPurchasedCourses(AddPurchasedCoursesRequest addPurchasedCoursesRequest) {
         return purchaseService.addToStudentsPurchasedCourses(addPurchasedCoursesRequest);
     }
+    @GetMapping("/verifyStudentOwnCourse/{courseCode}")
+    public boolean verifyStudentOwnCourse(@PathVariable String courseCode) {
+        return purchaseService.verifyStudentOwnCourse(courseCode);
+    }
 }

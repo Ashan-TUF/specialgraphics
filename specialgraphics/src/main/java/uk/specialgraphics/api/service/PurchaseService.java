@@ -5,4 +5,6 @@ import uk.specialgraphics.api.payload.response.SuccessResponse;
 
 public interface PurchaseService {
     SuccessResponse addToStudentsPurchasedCourses(AddPurchasedCoursesRequest addPurchasedCoursesRequest);
+
+    boolean verifyStudentOwnCourse(String courseCode);
 }
