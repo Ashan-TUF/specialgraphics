@@ -40,4 +40,10 @@ public interface CourseService {
     UserCourseViewResponse getUserCourseDetailsByCourseCode(String courseCode);
 
     SuccessResponse addZip(CurriculumItemFileUploadRequest fileUploadRequest);
+
+    UserQuizesInCurriculumItemResponse getUserQuizesByCurriculumItemCode(String courseCode,String curiyculumCode);
+
+    SuccessResponse studentSubmitMcq(UserMcqRequest userMcqRequest);
+
+    UserPerformeQuizeAndAnswersResponse getUserAnswersForQuizesByCurriculumItemCode(String curiyculumCode);
 }
