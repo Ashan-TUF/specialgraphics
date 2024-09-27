@@ -99,6 +99,20 @@ public class CourseController {
     public SuccessResponse addFile(CurriculumItemFileUploadRequest fileUploadRequest) {
         return courseService.addZip(fileUploadRequest);
     }
+    @GetMapping("/getUserQuizItemsByCurriculumItemCode/{courseCode}/{curriculumItemCode}")
+    public UserQuizesInCurriculumItemResponse getUserMcqQuestions(@PathVariable String courseCode,@PathVariable String curriculumItemCode) {
+        return courseService.getUserQuizesByCurriculumItemCode(courseCode,curriculumItemCode);
+    }
+
+    @PostMapping("/userSubmitMcqItem")
+    public SuccessResponse submitMcq(@RequestBody UserMcqRequest userMcqRequest) {
+        return courseService.studentSubmitMcq(userMcqRequest);
+    }
+
+    @GetMapping("/getUserQuizItemsAndAnswersByCurriculumItemCode/{curriculumItemCode}")
+    public UserPerformeQuizeAndAnswersResponse getUserMcqQuestionsAndAnswers(@PathVariable String curriculumItemCode) {
+        return courseService.getUserAnswersForQuizesByCurriculumItemCode(curriculumItemCode);
+    }
 
 
 
