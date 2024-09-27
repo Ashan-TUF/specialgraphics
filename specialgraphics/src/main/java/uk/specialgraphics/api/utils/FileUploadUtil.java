@@ -45,4 +45,22 @@ public class FileUploadUtil {
             throw new RuntimeException("Failed to upload the file", e);
         }
     }
+    public static FileUploadResponse deleteFile(String filename) {
+        String targetPath = Config.UPLOAD_URL + filename;
+        try {
+            Path filePath = Paths.get(targetPath);
+            if (Files.exists(filePath)) {
+                Files.delete(filePath);
+
+                FileUploadResponse fileUploadResponse = new FileUploadResponse();
+                fileUploadResponse.setFilename(filename);
+                fileUploadResponse.setUrl(null);
+                return fileUploadResponse;
+            } else {
+                throw new RuntimeException("File not found: " + filename);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to delete the file: " + filename, e);
+        }
+    }
 }
