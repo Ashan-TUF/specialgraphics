@@ -16,5 +16,6 @@ public class UserCurriculumItemResponse {
     private List<UserCurriculumItemFileResponse> curriculumItemFiles;
     private List<CurriculumItemZipFileResponse> CurriculumItemZipFileResponse;
     private Boolean isQuizeAvailable;
+    private Boolean isQuizPerform;
     
 }
