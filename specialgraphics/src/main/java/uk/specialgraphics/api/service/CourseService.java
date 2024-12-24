@@ -1,5 +1,7 @@
 package uk.specialgraphics.api.service;
 
+import org.springframework.data.domain.Page;
+import uk.specialgraphics.api.entity.UserZipFile;
 import uk.specialgraphics.api.payload.request.*;
 import uk.specialgraphics.api.payload.response.*;
 
@@ -39,6 +41,8 @@ public interface CourseService {
 
     UserCourseViewResponse getUserCourseDetailsByCourseCode(String courseCode);
 
+    List<UserCourseViewResponse> getAdminViewUserCourseDetailsByCourseCode(String courseCode);
+
     SuccessResponse addZip(CurriculumItemFileUploadRequest fileUploadRequest);
 
     UserQuizesInCurriculumItemResponse getUserQuizesByCurriculumItemCode(String courseCode,String curiyculumCode);
@@ -46,4 +50,7 @@ public interface CourseService {
     SuccessResponse studentSubmitMcq(UserMcqRequest userMcqRequest);
 
     UserPerformeQuizeAndAnswersResponse getUserAnswersForQuizesByCurriculumItemCode(String curiyculumCode);
+
+    UserPerformeQuizeAndAnswersResponse getUserAnswersForQuizesByCurriculumItemCode(String curiyculumCode,String email);
+
 }

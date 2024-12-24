@@ -1,7 +1,9 @@
 package uk.specialgraphics.api.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+import uk.specialgraphics.api.entity.UserZipFile;
 import uk.specialgraphics.api.payload.request.*;
 import uk.specialgraphics.api.payload.response.*;
 import uk.specialgraphics.api.service.CourseService;
@@ -95,6 +97,11 @@ public class CourseController {
         return courseService.getUserCourseDetailsByCourseCode(courseCode);
     }
 
+    @GetMapping("/getAdminUserCourseDetailsByEmail/{email}")
+    public List<UserCourseViewResponse> getAdminViewUserCourseDetailsByCourseCode(@PathVariable String email) {
+        return courseService.getAdminViewUserCourseDetailsByCourseCode(email);
+    }
+
     @PostMapping("/addFile")
     public SuccessResponse addFile(CurriculumItemFileUploadRequest fileUploadRequest) {
         return courseService.addZip(fileUploadRequest);
@@ -112,6 +119,11 @@ public class CourseController {
     @GetMapping("/getUserQuizItemsAndAnswersByCurriculumItemCode/{curriculumItemCode}")
     public UserPerformeQuizeAndAnswersResponse getUserMcqQuestionsAndAnswers(@PathVariable String curriculumItemCode) {
         return courseService.getUserAnswersForQuizesByCurriculumItemCode(curriculumItemCode);
+    }
+
+    @GetMapping("/getUserQuizItemsAndAnswersByCurriculumItemCodeViewAdmin/{curriculumItemCode}/{email}")
+    public UserPerformeQuizeAndAnswersResponse getUserMcqQuestionsAndAnswers(@PathVariable String curriculumItemCode,@PathVariable String email) {
+        return courseService.getUserAnswersForQuizesByCurriculumItemCode(curriculumItemCode,email);
     }
 
 

@@ -25,6 +25,10 @@ public class FileUploadUtil {
                 path = Config.COURSE_IMAGES_UPLOAD_URL;
             }else if(type == "zip"){
                 path=Config.ZIP_UPLOAD_URL;
+            }else if(type == "userZip"){
+                path=Config.USER_ZIP_UPLOAD_URL;
+            }else if(type=="profile-images"){
+                path=Config.PROFILE_IMAGES_UPLOAD_URL;
             } else {
                 path = Config.OTHERS_UPLOAD_URL;
             }
