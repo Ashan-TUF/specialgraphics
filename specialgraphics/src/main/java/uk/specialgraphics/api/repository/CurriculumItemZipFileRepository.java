@@ -10,4 +10,5 @@ import java.util.List;
 public interface CurriculumItemZipFileRepository extends JpaRepository<CurriculumItemZipFile, Integer> {
     List<CurriculumItemZipFile> getCurriculumItemFileBySectionCurriculumItem(SectionCurriculumItem sectionCurriculumItem);
 
+    CurriculumItemZipFile getCurriculumItemZipFileById(int id);
 }

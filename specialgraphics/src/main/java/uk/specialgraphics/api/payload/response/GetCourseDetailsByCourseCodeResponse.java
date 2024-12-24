@@ -19,4 +19,11 @@ public class GetCourseDetailsByCourseCodeResponse {
     private String points;
     private Double price;
     private List<GetCourseSectionResponse> courseSections;
+
+    private String prefix;
+    private String prefixColor;
+    private String titleColor;
+    private String keyHighlights;
+    private String outcomes;
+    private String sOutcomes;
 }

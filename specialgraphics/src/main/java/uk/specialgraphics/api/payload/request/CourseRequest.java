@@ -14,4 +14,11 @@ public class CourseRequest {
     private String description;
     private String promotionalVideo;
     private String points;
+
+    private String prefix;
+    private String prefixColor;
+    private String titleColor;
+    private String keyHighlights;
+    private String outcomes;
+    private String sOutcomes;
 }

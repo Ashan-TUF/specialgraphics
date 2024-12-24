@@ -20,4 +20,12 @@ public class CourseResponse {
     private String points;
     private Double price;
     private List<CourseSectionResponse> courseSections;
+
+    private String prefix;
+    private String prefixColor;
+    private String titleColor;
+    private String keyHighlights;
+    private String outcomes;
+    private String sOutcomes;
+
 }

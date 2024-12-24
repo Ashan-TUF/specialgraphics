@@ -11,4 +11,5 @@ public class AddPurchasedCoursesRequest {
     private Integer paymentMethodId;
     private String courseCode;
     private Double totalPrice;
+    private String details;
 }

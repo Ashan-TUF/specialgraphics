@@ -1,8 +1,12 @@
 package uk.specialgraphics.api.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import uk.specialgraphics.api.config.Config;
@@ -37,6 +41,8 @@ public class CourseServiceImpl implements CourseService {
     private final CurriculumItemZipFileRepository curriculumItemZipFileRepository;
     private final UserQuizeRepository userQuizeRepository;
     private final UserAnswerRepository userAnswerRepository;
+    private final UserFileRepository userFileRepository;
+    private final GeneralUserProfileRepository generalUserProfileRepository;
 
 
     @Autowired
@@ -44,7 +50,7 @@ public class CourseServiceImpl implements CourseService {
             , CurriculumItemFileTypeRepository curriculumItemFileTypeRepository, CurriculumItemFileRepository curriculumItemFileRepository
             , QuizeRepository quizeRepository, QuizeItemRepository quizeItemRepository, AnswerRepository answerRepository
             , StudentHasCourseRepository studentHasCourseRepository, CurriculumItemZipFileRepository curriculumItemZipFileRepository
-            , UserQuizeRepository userQuizeRepository, UserAnswerRepository userAnswerRepository) {
+            , UserQuizeRepository userQuizeRepository, UserAnswerRepository userAnswerRepository, UserFileRepository userFileRepository, GeneralUserProfileRepository generalUserProfileRepository) {
         this.userProfileService = userProfileService;
         this.courseRepository = courseRepository;
         this.courseSectionRepository = courseSectionRepository;
@@ -58,6 +64,8 @@ public class CourseServiceImpl implements CourseService {
         this.curriculumItemZipFileRepository = curriculumItemZipFileRepository;
         this.userQuizeRepository = userQuizeRepository;
         this.userAnswerRepository = userAnswerRepository;
+        this.userFileRepository = userFileRepository;
+        this.generalUserProfileRepository = generalUserProfileRepository;
     }
 
 
@@ -207,12 +215,22 @@ public class CourseServiceImpl implements CourseService {
         courseResponse.setDescription(course.getDescription());
         courseResponse.setPoints(course.getPoints());
         courseResponse.setPrice(course.getPrice());
+
+        courseResponse.setPrefix(course.getSubCourseTitle());
+        courseResponse.setPrefixColor(course.getSubCourseTitleColorCode());
+        courseResponse.setTitleColor(course.getCourseTitleColorCode());
+
+        courseResponse.setKeyHighlights(course.getKeyHighlights());
+        courseResponse.setOutcomes(course.getProgramOutcomes());
+        courseResponse.setSOutcomes(course.getSpecificprogramOutcomes());
+
         List<CourseSection> courseSections = courseSectionRepository.getCourseSectionByCourse(course);
         List<CourseSectionResponse> courseSectionResponses = new ArrayList<>();
         for (CourseSection courseSection : courseSections) {
             CourseSectionResponse courseSectionResponse = new CourseSectionResponse();
             courseSectionResponse.setSectionCode(courseSection.getSectionCode());
             courseSectionResponse.setSectionName(courseSection.getSectionName());
+
             List<SectionCurriculumItem> sectionCurriculumItems = sectionCurriculumItemRepository.getSectionCurriculumItemByCourseSection(courseSection);
             List<CurriculumItemResponse> curriculumItemResponses = new ArrayList<>();
             for (SectionCurriculumItem sectionCurriculumItem : sectionCurriculumItems) {
@@ -223,6 +241,8 @@ public class CourseServiceImpl implements CourseService {
                 curriculumItemResponses.add(curriculumItemResponse);
             }
             courseSectionResponse.setCurriculumItems(curriculumItemResponses);
+
+
             courseSectionResponses.add(courseSectionResponse);
         }
         courseResponse.setCourseSections(courseSectionResponses);
@@ -239,6 +259,13 @@ public class CourseServiceImpl implements CourseService {
         final Double price = courseRequest.getPrice();
         final String description = courseRequest.getDescription();
         final String points = courseRequest.getPoints();
+
+        final String prefix = courseRequest.getPrefix();
+        final String prefixColor = courseRequest.getPrefixColor();
+        final String titleColor = courseRequest.getTitleColor();
+        final String keyHighlights = courseRequest.getKeyHighlights();
+        final String outcomes = courseRequest.getOutcomes();
+        final String sOutcomes = courseRequest.getSOutcomes();
 
         if (courseCode == null || courseCode.isEmpty())
             throw new ErrorException("Invalid request", VarList.RSP_NO_DATA_FOUND);
@@ -281,9 +308,36 @@ public class CourseServiceImpl implements CourseService {
             course.setPoints(points);
             isChanged = true;
         }
+        if (prefix != null && !prefix.isEmpty()) {
+            course.setSubCourseTitle(prefix);
+            isChanged = true;
+        }
+        if (prefixColor != null && !prefixColor.isEmpty()) {
+            course.setSubCourseTitleColorCode(prefixColor);
+            isChanged = true;
+        }
+        if (titleColor != null && !titleColor.isEmpty()) {
+            course.setCourseTitleColorCode(titleColor);
+            isChanged = true;
+        }
+        if (keyHighlights != null && !keyHighlights.isEmpty()) {
+            course.setKeyHighlights(keyHighlights);
+            isChanged = true;
+        }
+        if (outcomes != null && !outcomes.isEmpty()) {
+            course.setProgramOutcomes(outcomes);
+            isChanged = true;
+        }
+        if (sOutcomes != null && !sOutcomes.isEmpty()) {
+            course.setSpecificprogramOutcomes(sOutcomes);
+            isChanged = true;
+        }
 
-        if (!isChanged) {
+        if (isChanged) {
             courseRepository.save(course);
+        } else {
+            throw new ErrorException("No changed components", VarList.RSP_NO_DATA_FOUND);
+
         }
         SuccessResponse successResponse = new SuccessResponse();
         successResponse.setMessage("Course updated successfully");
@@ -668,6 +722,15 @@ public class CourseServiceImpl implements CourseService {
         getCourseDetailsByCourseCodeResponse.setDescription(course.getDescription());
         getCourseDetailsByCourseCodeResponse.setPoints(course.getPoints());
         getCourseDetailsByCourseCodeResponse.setPrice(course.getPrice());
+
+        getCourseDetailsByCourseCodeResponse.setPrefix(course.getSubCourseTitle());
+        getCourseDetailsByCourseCodeResponse.setPrefixColor(course.getSubCourseTitleColorCode());
+        getCourseDetailsByCourseCodeResponse.setTitleColor(course.getCourseTitleColorCode());
+
+        getCourseDetailsByCourseCodeResponse.setKeyHighlights(course.getKeyHighlights());
+        getCourseDetailsByCourseCodeResponse.setOutcomes(course.getProgramOutcomes());
+        getCourseDetailsByCourseCodeResponse.setSOutcomes(course.getSpecificprogramOutcomes());
+
         List<GetCourseSectionResponse> courseSections = new ArrayList<>();
         List<CourseSection> courseSectionList = courseSectionRepository.getCourseSectionByCourse(course);
         for (CourseSection courseSection : courseSectionList) {
@@ -725,16 +788,26 @@ public class CourseServiceImpl implements CourseService {
         userCourseViewResponse.setDescription(course.getDescription());
         userCourseViewResponse.setPoints(course.getPoints());
 
+        boolean breakTheLoop = false;
+        boolean breakCurriItem = false;
         ArrayList<UserCourseSectionResponse> userCourseSectionResponses = new ArrayList<>();
         List<CourseSection> courseSectionList = courseSectionRepository.getCourseSectionByCourse(studentCourse.getCourse());
         for (CourseSection courseSection : courseSectionList) {
+            if (breakTheLoop) {
+                userCourseViewResponse.setNextLesson(courseSection.getSectionName());
+                break;
+            }
             UserCourseSectionResponse courseSectionResponse = new UserCourseSectionResponse();
             courseSectionResponse.setSectionName(courseSection.getSectionName());
             courseSectionResponse.setSectionCode(courseSection.getSectionCode());
             List<UserCurriculumItemResponse> curriculumItems = new ArrayList<>();
             List<SectionCurriculumItem> sectionCurriculumItems = sectionCurriculumItemRepository.getSectionCurriculumItemByCourseSection(courseSection);
-            for (SectionCurriculumItem sectionCurriculumItem : sectionCurriculumItems) {
+            for (int i = 0; i < sectionCurriculumItems.size(); i++) {
 
+                if (breakCurriItem) {
+                    break;
+                }
+                SectionCurriculumItem sectionCurriculumItem = sectionCurriculumItems.get(i);
                 UserCurriculumItemResponse curriculumItemResponse = new UserCurriculumItemResponse();
                 curriculumItemResponse.setDescription(sectionCurriculumItem.getDescription());
                 curriculumItemResponse.setTitle(sectionCurriculumItem.getTitle());
@@ -752,12 +825,28 @@ public class CourseServiceImpl implements CourseService {
                 }
                 List<CurriculumItemZipFile> curriculumzipFileBySectionCurriculumItem = curriculumItemZipFileRepository.getCurriculumItemFileBySectionCurriculumItem(sectionCurriculumItem);
                 List<CurriculumItemZipFileResponse> curriculumItemZipFileResponses = new ArrayList<>();
+
                 for (CurriculumItemZipFile curriculumItemZipFile : curriculumzipFileBySectionCurriculumItem) {
                     CurriculumItemZipFileResponse curriculumItemZipFileResponse = new CurriculumItemZipFileResponse();
-                    curriculumItemZipFileResponse.setId(curriculumItemZipFile.getId());
-                    curriculumItemZipFileResponse.setUrl(curriculumItemZipFile.getUrl());
+
                     curriculumItemZipFileResponse.setTitle(curriculumItemZipFile.getTitle());
+                    UserZipFile userZipFileByCurriculumItemZipFile = userFileRepository.getUserZipFileByCurriculumItemZipFile(curriculumItemZipFile);
+                    if (userZipFileByCurriculumItemZipFile != null) {
+                        curriculumItemZipFileResponse.setComplete(true);
+                        if (userZipFileByCurriculumItemZipFile.getMarks() == 0) {
+                            breakTheLoop = true;
+                            breakCurriItem = true;
+                        }
+                        curriculumItemZipFileResponse.setMarks(userZipFileByCurriculumItemZipFile.getMarks());
+
+                    } else {
+                        breakTheLoop = true;
+                        breakCurriItem = true;
+                        curriculumItemZipFileResponse.setId(curriculumItemZipFile.getId());
+                        curriculumItemZipFileResponse.setUrl(curriculumItemZipFile.getUrl());
+                    }
                     curriculumItemZipFileResponses.add(curriculumItemZipFileResponse);
+
                 }
                 curriculumItemResponse.setCurriculumItemZipFileResponse(curriculumItemZipFileResponses);
                 curriculumItemResponse.setCurriculumItemFiles(curriculumItemFileResponses);
@@ -768,14 +857,17 @@ public class CourseServiceImpl implements CourseService {
                 } else {
                     curriculumItemResponse.setIsQuizeAvailable(true);
                     UserQuiz userQuizByQuizSectionCurriculumItem = userQuizeRepository.getUserQuizByQuizSectionCurriculumItem(sectionCurriculumItem);
-                    if(userQuizByQuizSectionCurriculumItem==null){
+                    if (userQuizByQuizSectionCurriculumItem == null) {
                         curriculumItemResponse.setIsQuizPerform(false);
-                    }else{
+                        breakTheLoop = true;
+                        breakCurriItem = true;
+                    } else {
                         curriculumItemResponse.setIsQuizPerform(true);
 
                     }
                 }
                 curriculumItems.add(curriculumItemResponse);
+
             }
             courseSectionResponse.setCurriculumItems(curriculumItems);
             userCourseSectionResponses.add(courseSectionResponse);
@@ -783,6 +875,114 @@ public class CourseServiceImpl implements CourseService {
         userCourseViewResponse.setCourseSections(userCourseSectionResponses);
 //        return getCourseDetailsByCourseCodeResponse;
         return userCourseViewResponse;
+    }
+
+    @Override
+    public List<UserCourseViewResponse> getAdminViewUserCourseDetailsByCourseCode(String email) {
+
+        authentication();
+        GeneralUserProfile generalUserProfileByEmail = generalUserProfileRepository.getGeneralUserProfileByEmail(email);
+        if (generalUserProfileByEmail == null) {
+            throw new ErrorException("Invalid User Email", VarList.RSP_NO_DATA_FOUND);
+        }
+
+        List<StudentHasCourse> studentCourse = studentHasCourseRepository.getAllByGeneralUserProfile(generalUserProfileByEmail);
+        List<UserCourseViewResponse> userCourseViewResponses = new ArrayList<>();
+        for (StudentHasCourse studentHasCourse : studentCourse) {
+            if (studentCourse == null)
+                throw new ErrorException("Invalid course Request", VarList.RSP_NO_DATA_FOUND);
+            Course course = studentHasCourse.getCourse();
+            UserCourseViewResponse userCourseViewResponse = new UserCourseViewResponse();
+
+            userCourseViewResponse.setCode(course.getCode());
+            userCourseViewResponse.setTitle(course.getCourseTitle());
+            userCourseViewResponse.setImg(course.getImg());
+            userCourseViewResponse.setDescription(course.getDescription());
+            userCourseViewResponse.setPoints(course.getPoints());
+
+            boolean breakTheLoop = false;
+            ArrayList<UserCourseSectionResponse> userCourseSectionResponses = new ArrayList<>();
+            List<CourseSection> courseSectionList = courseSectionRepository.getCourseSectionByCourse(course);
+            for (CourseSection courseSection : courseSectionList) {
+                if (breakTheLoop) {
+                    userCourseViewResponse.setNextLesson(courseSection.getSectionName());
+                    break;
+                }
+                UserCourseSectionResponse courseSectionResponse = new UserCourseSectionResponse();
+                courseSectionResponse.setSectionName(courseSection.getSectionName());
+                courseSectionResponse.setSectionCode(courseSection.getSectionCode());
+                List<UserCurriculumItemResponse> curriculumItems = new ArrayList<>();
+                List<SectionCurriculumItem> sectionCurriculumItems = sectionCurriculumItemRepository.getSectionCurriculumItemByCourseSection(courseSection);
+                for (int i = 0; i < sectionCurriculumItems.size(); i++) {
+                    SectionCurriculumItem sectionCurriculumItem = sectionCurriculumItems.get(i);
+                    UserCurriculumItemResponse curriculumItemResponse = new UserCurriculumItemResponse();
+                    curriculumItemResponse.setDescription(sectionCurriculumItem.getDescription());
+                    curriculumItemResponse.setTitle(sectionCurriculumItem.getTitle());
+                    curriculumItemResponse.setCurriculumItemType(sectionCurriculumItem.getCurriculumItemType());
+                    curriculumItemResponse.setItemCode(sectionCurriculumItem.getCode());
+                    List<CurriculumItemFile> curriculumItemFileBySectionCurriculumItem = curriculumItemFileRepository.getCurriculumItemFileBySectionCurriculumItem(sectionCurriculumItem);
+                    List<UserCurriculumItemFileResponse> curriculumItemFileResponses = new ArrayList<>();
+                    for (CurriculumItemFile curriculumItemFile : curriculumItemFileBySectionCurriculumItem) {
+                        UserCurriculumItemFileResponse userCurriculumItemFileResponse = new UserCurriculumItemFileResponse();
+                        userCurriculumItemFileResponse.setTitle(curriculumItemFile.getTitle());
+                        userCurriculumItemFileResponse.setUrl(curriculumItemFile.getUrl());
+                        userCurriculumItemFileResponse.setVideoLength(curriculumItemFile.getVideoLength());
+                        curriculumItemFileResponses.add(userCurriculumItemFileResponse);
+
+                    }
+                    List<CurriculumItemZipFile> curriculumzipFileBySectionCurriculumItem = curriculumItemZipFileRepository.getCurriculumItemFileBySectionCurriculumItem(sectionCurriculumItem);
+                    List<CurriculumItemZipFileResponse> curriculumItemZipFileResponses = new ArrayList<>();
+
+
+                    for (CurriculumItemZipFile curriculumItemZipFile : curriculumzipFileBySectionCurriculumItem) {
+                        CurriculumItemZipFileResponse curriculumItemZipFileResponse = new CurriculumItemZipFileResponse();
+
+                        curriculumItemZipFileResponse.setTitle(curriculumItemZipFile.getTitle());
+                        UserZipFile userZipFileByCurriculumItemZipFile = userFileRepository.getUserZipFileByCurriculumItemZipFile(curriculumItemZipFile);
+                        if (userZipFileByCurriculumItemZipFile != null) {
+
+                            curriculumItemZipFileResponse.setComplete(userZipFileByCurriculumItemZipFile.isStatus());
+                            curriculumItemZipFileResponse.setId(userZipFileByCurriculumItemZipFile.getId());
+                            curriculumItemZipFileResponse.setMarks(userZipFileByCurriculumItemZipFile.getMarks());
+                            curriculumItemZipFileResponse.setDate(userZipFileByCurriculumItemZipFile.getUploadDate().toString());
+                            curriculumItemZipFileResponse.setUrl(userZipFileByCurriculumItemZipFile.getUrl());
+
+
+                        } else {
+                            breakTheLoop = true;
+                            curriculumItemZipFileResponse.setComplete(false);
+                        }
+                        curriculumItemZipFileResponses.add(curriculumItemZipFileResponse);
+
+                    }
+                    curriculumItemResponse.setCurriculumItemZipFileResponse(curriculumItemZipFileResponses);
+                    curriculumItemResponse.setCurriculumItemFiles(curriculumItemFileResponses);
+                    Quiz quizBySectionCurriculumItemId = quizeRepository.getQuizBySectionCurriculumItemId(sectionCurriculumItem.getId());
+                    if (quizBySectionCurriculumItemId == null) {
+                        curriculumItemResponse.setIsQuizeAvailable(false);
+                        curriculumItemResponse.setIsQuizPerform(false);
+                    } else {
+                        curriculumItemResponse.setIsQuizeAvailable(true);
+                        UserQuiz userQuizByQuizSectionCurriculumItem = userQuizeRepository.getUserQuizByQuizSectionCurriculumItem(sectionCurriculumItem);
+                        if (userQuizByQuizSectionCurriculumItem == null) {
+                            curriculumItemResponse.setIsQuizPerform(false);
+                            breakTheLoop = true;
+                        } else {
+                            curriculumItemResponse.setIsQuizPerform(true);
+
+                        }
+                    }
+                    curriculumItems.add(curriculumItemResponse);
+
+                }
+                courseSectionResponse.setCurriculumItems(curriculumItems);
+                userCourseSectionResponses.add(courseSectionResponse);
+            }
+            userCourseViewResponse.setCourseSections(userCourseSectionResponses);
+            userCourseViewResponses.add(userCourseViewResponse);
+
+        }
+        return userCourseViewResponses;
     }
 
     @Override
@@ -870,7 +1070,64 @@ public class CourseServiceImpl implements CourseService {
             throw new ErrorException("Course not Purchased", VarList.RSP_NO_DATA_FOUND);
 
         UserQuiz userQuizByQuizSectionCurriculumItem = userQuizeRepository.getUserQuizByQuizSectionCurriculumItem(sectionCurriculumItemByCode);
-        if(userQuizByQuizSectionCurriculumItem==null)
+        if (userQuizByQuizSectionCurriculumItem == null)
+            throw new ErrorException("Invalid Request", VarList.RSP_NO_DATA_FOUND);
+
+        Quiz quizBySectionCurriculumItemId = quizeRepository.getQuizBySectionCurriculumItemId(sectionCurriculumItemByCode.getId());
+        if (quizBySectionCurriculumItemId == null)
+            throw new ErrorException("Invalid course code", VarList.RSP_NO_DATA_FOUND);
+
+
+        List<QuizItems> allByQuizeId = quizeItemRepository.getAllByQuiz(userQuizByQuizSectionCurriculumItem.getQuiz());
+
+        UserPerformeQuizeAndAnswersResponse quizesInCurriculumItemResponse = new UserPerformeQuizeAndAnswersResponse();
+        ArrayList<UserPerformAnswerResponse> questionAndAnswerResponses = new ArrayList<>();
+        for (QuizItems quizItems : allByQuizeId) {
+
+            UserPerformAnswerResponse questionAndAnswerResponse = new UserPerformAnswerResponse();
+            questionAndAnswerResponse.setQuestionItemCode(quizItems.getCode());
+            UserAnswers userAnswersByQuizItem = userAnswerRepository.getUserAnswersByQuizItem(quizItems);
+            AnswerResponse userAnswerResponse = new AnswerResponse();
+            userAnswerResponse.setAnswer(userAnswersByQuizItem.getUserAnswer().getAnswer());
+            userAnswerResponse.setIstrue(userAnswersByQuizItem.getUserAnswer().isCorrect());
+            userAnswerResponse.setId(userAnswersByQuizItem.getUserAnswer().getId());
+            questionAndAnswerResponse.setQuestion(quizItems.getQuestion());
+            questionAndAnswerResponse.setUserAnswer(userAnswerResponse);
+            List<Answers> allByQuizItems = answerRepository.getAllByQuizItems(quizItems);
+            ArrayList<AnswerResponse> answerResponses = new ArrayList<>();
+            for (Answers answers : allByQuizItems) {
+                AnswerResponse answerResponse = new AnswerResponse();
+                answerResponse.setAnswer(answers.getAnswer());
+                answerResponse.setId(answers.getId());
+                answerResponse.setIstrue(answers.isCorrect());
+                answerResponses.add(answerResponse);
+
+            }
+            questionAndAnswerResponse.setAnswerResponses(answerResponses);
+            questionAndAnswerResponses.add(questionAndAnswerResponse);
+        }
+        quizesInCurriculumItemResponse.setAnswerResponses(questionAndAnswerResponses);
+
+        return quizesInCurriculumItemResponse;
+
+    }
+
+
+    public UserPerformeQuizeAndAnswersResponse getUserAnswersForQuizesByCurriculumItemCode(String curiyculumCode, String email) {
+
+        authentication();
+        GeneralUserProfile generalUserProfile = generalUserProfileRepository.getGeneralUserProfileByEmail(email);
+        if (generalUserProfile == null)
+            throw new ErrorException("Invalid User", VarList.RSP_NO_DATA_FOUND);
+        SectionCurriculumItem sectionCurriculumItemByCode = sectionCurriculumItemRepository.getSectionCurriculumItemByCode(curiyculumCode);
+        if (sectionCurriculumItemByCode == null)
+            throw new ErrorException("Invalid curriculum Item Code", VarList.RSP_NO_DATA_FOUND);
+        StudentHasCourse studentHasCourseByCourseAndGeneralUserProfile = studentHasCourseRepository.getStudentHasCourseByCourseAndGeneralUserProfile(sectionCurriculumItemByCode.getCourseSection().getCourse(), generalUserProfile);
+        if (studentHasCourseByCourseAndGeneralUserProfile == null)
+            throw new ErrorException("Course not Purchased", VarList.RSP_NO_DATA_FOUND);
+
+        UserQuiz userQuizByQuizSectionCurriculumItem = userQuizeRepository.getUserQuizByQuizSectionCurriculumItem(sectionCurriculumItemByCode);
+        if (userQuizByQuizSectionCurriculumItem == null)
             throw new ErrorException("Invalid Request", VarList.RSP_NO_DATA_FOUND);
 
         Quiz quizBySectionCurriculumItemId = quizeRepository.getQuizBySectionCurriculumItemId(sectionCurriculumItemByCode.getId());
@@ -921,16 +1178,16 @@ public class CourseServiceImpl implements CourseService {
         SectionCurriculumItem sectionCurriculumItemByCode = sectionCurriculumItemRepository.getSectionCurriculumItemByCode(userMcqRequest.getCurriculumItemCode());
         if (sectionCurriculumItemByCode == null)
             throw new ErrorException("Invalid Course Request", VarList.RSP_NO_DATA_FOUND);
-        Quiz quizBySectionCurriculumItem = quizeRepository.getQuizBySectionCurriculumItem(sectionCurriculumItemByCode);
-        if (quizBySectionCurriculumItem == null)
+        Quiz quizBySectionCurriculum = quizeRepository.getQuizBySectionCurriculumItem(sectionCurriculumItemByCode);
+        if (quizBySectionCurriculum == null)
             throw new ErrorException("No quiz available for course", VarList.RSP_NO_DATA_FOUND);
 
         UserQuiz userQuizByQuizSectionCurriculumItem = userQuizeRepository.getUserQuizByQuizSectionCurriculumItem(sectionCurriculumItemByCode);
-        if(userQuizByQuizSectionCurriculumItem!=null)
+        if (userQuizByQuizSectionCurriculumItem != null)
             throw new ErrorException("Already Submit The Quiz", VarList.RSP_NO_DATA_FOUND);
         UserQuiz userQuiz = new UserQuiz();
         userQuiz.setUser(generalUserProfile);
-        userQuiz.setQuiz(quizBySectionCurriculumItem);
+        userQuiz.setQuiz(quizBySectionCurriculum);
         userQuizeRepository.save(userQuiz);
         for (UserSubmitMcqItemRequest mcq : userSubmitMcqItemRequest) {
             UserAnswers userAnswers = new UserAnswers();
@@ -941,9 +1198,62 @@ public class CourseServiceImpl implements CourseService {
             userAnswers.setUserQuiz(userQuiz);
             userAnswerRepository.save(userAnswers);
         }
+
+//        check the lesson is complete
+
+        Course course = quizBySectionCurriculum.getSectionCurriculumItem().getCourseSection().getCourse();
+
+        List<CourseSection> courseSectionByCourse = courseSectionRepository.getCourseSectionByCourse(course);
+        if (courseSectionByCourse != null) {
+            CourseSection courseSection = courseSectionByCourse.get(courseSectionByCourse.size() - 1);
+            if (quizBySectionCurriculum.getSectionCurriculumItem().getCourseSection() == courseSection) {
+
+                List<SectionCurriculumItem> sectionCurriculumItemByCourseSection = sectionCurriculumItemRepository.getSectionCurriculumItemByCourseSection(courseSection);
+                if (sectionCurriculumItemByCourseSection != null) {
+                    SectionCurriculumItem sectionCurriculumItem = sectionCurriculumItemByCourseSection.get(sectionCurriculumItemByCourseSection.size() - 1);
+                    if (quizBySectionCurriculum.getSectionCurriculumItem() == sectionCurriculumItem) {
+
+                        boolean lessonComplete = false;
+
+                        Quiz quizBySectionCurriculumItem = quizeRepository.getQuizBySectionCurriculumItem(sectionCurriculumItem);
+                        if (quizBySectionCurriculumItem != null) {
+                            UserQuiz userQuizByQuizSectionCurriculum = userQuizeRepository.getUserQuizByQuizSectionCurriculumItem(sectionCurriculumItem);
+                            if (userQuizByQuizSectionCurriculum != null) {
+                                lessonComplete = true;
+                            } else {
+                                lessonComplete = false;
+                            }
+                        }
+                        List<CurriculumItemZipFile> curriculumItemFileBySectionCurriculumItem = curriculumItemZipFileRepository.getCurriculumItemFileBySectionCurriculumItem(sectionCurriculumItem);
+                        if (curriculumItemFileBySectionCurriculumItem != null && !curriculumItemFileBySectionCurriculumItem.isEmpty()) {
+                            CurriculumItemZipFile curriculumItemZipFile = curriculumItemFileBySectionCurriculumItem.get(curriculumItemFileBySectionCurriculumItem.size() - 1);
+                            if (curriculumItemZipFile!=null) {
+                                lessonComplete = true;
+                            } else {
+                                lessonComplete = false;
+                            }
+                        }
+
+                        if (lessonComplete) {
+                            StudentHasCourse studentHasCourseByCourseAndGeneralUserProfile = studentHasCourseRepository.getStudentHasCourseByCourseAndGeneralUserProfile(course,generalUserProfile);
+                            studentHasCourseByCourseAndGeneralUserProfile.setIsComplete((byte) 1);
+                            studentHasCourseRepository.save(studentHasCourseByCourseAndGeneralUserProfile);
+                        }
+
+
+                    }
+                }
+
+
+            }
+        }
+//        check the lesson is complete
+
         SuccessResponse successResponse = new SuccessResponse();
         successResponse.setMessage("Mcq Question Successfully Completed");
         successResponse.setVariable("200");
         return successResponse;
     }
+
+
 }
