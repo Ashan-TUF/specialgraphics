@@ -4,13 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import uk.specialgraphics.api.entity.Course;
-import uk.specialgraphics.api.entity.GeneralUserProfile;
-import uk.specialgraphics.api.entity.PaymentMethod;
-import uk.specialgraphics.api.entity.StudentHasCourse;
+import uk.specialgraphics.api.entity.*;
 import uk.specialgraphics.api.exception.ErrorException;
 import uk.specialgraphics.api.payload.request.AddPurchasedCoursesRequest;
 import uk.specialgraphics.api.payload.response.SuccessResponse;
+import uk.specialgraphics.api.payload.response.VerifyStudentOwnACourseResponse;
 import uk.specialgraphics.api.repository.*;
 import uk.specialgraphics.api.service.PurchaseService;
 import uk.specialgraphics.api.service.UserProfileService;
@@ -26,16 +24,18 @@ public class PurchaseServiceImpl implements PurchaseService {
     private final CourseRepository courseRepository;
     private final PaymentMethodRepository paymentMethodRepository;
     private final StudentHasCourseRepository studentHasCourseRepository;
+    private final CouponRepository couponRepository;
 
     @Autowired
     public PurchaseServiceImpl(UserProfileService userProfileService,
                                CourseRepository courseRepository,
                                PaymentMethodRepository paymentMethodRepository,
-                               StudentHasCourseRepository studentHasCourseRepository) {
+                               StudentHasCourseRepository studentHasCourseRepository, CouponRepository couponRepository) {
         this.userProfileService = userProfileService;
         this.courseRepository = courseRepository;
         this.paymentMethodRepository = paymentMethodRepository;
         this.studentHasCourseRepository = studentHasCourseRepository;
+        this.couponRepository = couponRepository;
     }
 
     private GeneralUserProfile authentication() {
@@ -82,8 +82,10 @@ public class PurchaseServiceImpl implements PurchaseService {
         studentHasCourse.setTotalPrice(totalPrice);
         studentHasCourse.setBuyDate(new Date());
         studentHasCourse.setPaymentMethod(paymentMethod);
+        studentHasCourse.setDescription(addPurchasedCoursesRequest.getDetails());
         studentHasCourse.setCourse(course);
         studentHasCourse.setGeneralUserProfile(profile);
+        studentHasCourse.setIsComplete((byte)0);
         studentHasCourseRepository.save(studentHasCourse);
 
         SuccessResponse successResponse = new SuccessResponse();
@@ -93,7 +95,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     @Override
-    public boolean verifyStudentOwnCourse(String courseCode) {
+    public VerifyStudentOwnACourseResponse verifyStudentOwnCourse(String courseCode, String offerCode) {
         GeneralUserProfile profile = authentication();
         Course course = courseRepository.getCourseByCode(courseCode);
         boolean isVerify = false;
@@ -104,7 +106,19 @@ public class PurchaseServiceImpl implements PurchaseService {
         if (studentHasCourse == null)
             isVerify = true;
 
-        return isVerify;
+        VerifyStudentOwnACourseResponse verifyStudentOwnACourseResponse = new VerifyStudentOwnACourseResponse();
+        verifyStudentOwnACourseResponse.setVerify(isVerify);
+
+        Coupon couponByUidAndAndCourse = couponRepository.getCouponByUidAndAndCourse(offerCode, course);
+
+        System.out.println(offerCode);
+        if (couponByUidAndAndCourse == null) {
+            verifyStudentOwnACourseResponse.setPrice(course.getPrice());
+        }else{
+            verifyStudentOwnACourseResponse.setPrice(course.getPrice()-couponByUidAndAndCourse.getPrice());
+        }
+
+        return verifyStudentOwnACourseResponse;
 
     }
 

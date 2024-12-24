@@ -13,5 +13,6 @@ public class UserCourseViewResponse {
     private String img;
     private String description;
     private String points;
+    private String nextLesson;
     private List<UserCourseSectionResponse> courseSections;
 }

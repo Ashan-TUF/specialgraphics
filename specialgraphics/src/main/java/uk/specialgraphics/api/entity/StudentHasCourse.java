@@ -38,4 +38,7 @@ public class StudentHasCourse {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "gup_id")
     private GeneralUserProfile generalUserProfile;
+    @Lob
+    @Column(name = "description")
+    private String description;
 }

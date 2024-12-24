@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface CurriculumItemFileRepository extends JpaRepository<CurriculumItemFile, Integer> {
     List<CurriculumItemFile> getCurriculumItemFileBySectionCurriculumItem(SectionCurriculumItem sectionCurriculumItem);
+
+
 }
