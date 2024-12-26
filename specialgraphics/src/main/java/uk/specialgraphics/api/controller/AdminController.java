@@ -2,10 +2,9 @@ package uk.specialgraphics.api.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import uk.specialgraphics.api.payload.request.UserUpdateProfileRequest;
+import uk.specialgraphics.api.payload.response.UserLoginResponse;
 import uk.specialgraphics.api.payload.response.UserProfileResponse;
 import uk.specialgraphics.api.service.UserProfileService;
 
@@ -26,4 +25,13 @@ public class AdminController {
 
     }
 
+    @GetMapping("/adminProfileDetails")
+    public UserProfileResponse studentProfileForUpdate() {
+        return userProfileService.adminGetUserProfileByEmail();
+    }
+
+    @PutMapping("/adminUpdateProfile")
+    public UserLoginResponse studentChangeProfile(UserUpdateProfileRequest userProfileUpdateRequest) {
+        return userProfileService.adminUpdateProfile(userProfileUpdateRequest);
+    }
 }

@@ -51,7 +51,7 @@ public class UserProfileServiceImpl implements UserProfileService {
         return generalUserProfileRepository.getGeneralUserProfileByEmail(username);
     }
 
-    private void authentication() {
+    private GeneralUserProfile authentication() {
         Authentication authentication;
         String username;
         GeneralUserProfile profile;
@@ -65,6 +65,7 @@ public class UserProfileServiceImpl implements UserProfileService {
 
         if (profile.getGupType().getId() != 1)
             throw new ErrorException("You are not a instructor to this operation", VarList.RSP_NO_DATA_FOUND);
+        return profile;
     }
 
     private GeneralUserProfile studentAuthentication() {
@@ -201,17 +202,17 @@ public class UserProfileServiceImpl implements UserProfileService {
         String newPassword = changePasswordRequest.getNewPassword();
         String repeatPassword = changePasswordRequest.getRepeatPassword();
 
-        if(oldPassword==null||oldPassword.isEmpty()||newPassword==null||newPassword.isEmpty()||repeatPassword==null||repeatPassword.isEmpty()){
+        if (oldPassword == null || oldPassword.isEmpty() || newPassword == null || newPassword.isEmpty() || repeatPassword == null || repeatPassword.isEmpty()) {
             throw new ErrorException("Invalid Request", VarList.RSP_NO_DATA_FOUND);
         }
 
         PasswordEncoderConfig by = new PasswordEncoderConfig();
 
-        if(!by.passwordEncoder().matches(oldPassword,generalUserProfile.getPassword())){
+        if (!by.passwordEncoder().matches(oldPassword, generalUserProfile.getPassword())) {
             throw new ErrorException("Your Old Password is Incorrect", VarList.RSP_NO_DATA_FOUND);
         }
 
-        if(!newPassword.equals(repeatPassword)){
+        if (!newPassword.equals(repeatPassword)) {
             throw new ErrorException("Repeat The Password Correctly", VarList.RSP_NO_DATA_FOUND);
         }
         String encodedNewPassword = by.passwordEncoder().encode(newPassword);
@@ -221,6 +222,110 @@ public class UserProfileServiceImpl implements UserProfileService {
         UserLoginResponse userLoginResponse = changeToken(generalUserProfile);
 
         return userLoginResponse;
+    }
+
+    @Override
+    public UserProfileResponse adminGetUserProfileByEmail() {
+        GeneralUserProfile generalUserProfileByEmail = authentication();
+        if (generalUserProfileByEmail == null) {
+            throw new ErrorException("Invalid User Email", VarList.RSP_NO_DATA_FOUND);
+        }
+
+        UserProfileResponse userProfileResponse = new UserProfileResponse();
+        userProfileResponse.setFname(generalUserProfileByEmail.getFirstName());
+        userProfileResponse.setLname(generalUserProfileByEmail.getLastName());
+        userProfileResponse.setEmail(generalUserProfileByEmail.getEmail());
+        userProfileResponse.setMobile(generalUserProfileByEmail.getMobile());
+        userProfileResponse.setRegistred_date(generalUserProfileByEmail.getRegisteredDate().toString());
+        if (generalUserProfileByEmail.getIsActive() == 1) {
+            userProfileResponse.setStatus(true);
+        } else {
+            userProfileResponse.setStatus(false);
+        }
+        userProfileResponse.setCountry_id(generalUserProfileByEmail.getCountry().getId());
+        userProfileResponse.setImg(generalUserProfileByEmail.getProfileImg());
+
+        return userProfileResponse;
+    }
+
+    @Override
+    public UserLoginResponse adminUpdateProfile(UserUpdateProfileRequest userUpdateProfileRequest) {
+        GeneralUserProfile generalUserProfileByEmail = authentication();
+        final String firstName = userUpdateProfileRequest.getFname();
+        final String lastName = userUpdateProfileRequest.getLname();
+        final MultipartFile image = userUpdateProfileRequest.getImg();
+        final String email = userUpdateProfileRequest.getEmail();
+        final String mobile = userUpdateProfileRequest.getMobile();
+        final int country = userUpdateProfileRequest.getCountry();
+
+
+        if (firstName == null || firstName.isEmpty() || lastName == null || lastName.isEmpty() || email == null || email.isEmpty() || mobile == null
+                || mobile.isEmpty() || country == 0)
+            throw new ErrorException("Invalid request", VarList.RSP_NO_DATA_FOUND);
+
+        if (generalUserProfileByEmail == null)
+            throw new ErrorException("Invalid User Details", VarList.RSP_NO_DATA_FOUND);
+
+        boolean isProfileUpdated = false;
+
+        if (!firstName.equals(generalUserProfileByEmail.getFirstName())) {
+
+            isProfileUpdated = true;
+            generalUserProfileByEmail.setFirstName(firstName);
+
+        }
+
+        if (!lastName.equals(generalUserProfileByEmail.getLastName())) {
+            isProfileUpdated = true;
+            generalUserProfileByEmail.setLastName(lastName);
+
+        }
+        if (!email.equals(generalUserProfileByEmail.getEmail())) {
+            isProfileUpdated = true;
+            GeneralUserProfile alreadyExsitingEmail = generalUserProfileRepository.getGeneralUserProfileByEmail(email);
+            if (alreadyExsitingEmail != null) {
+                throw new ErrorException("Added Email Already Registred ", VarList.RSP_NO_DATA_FOUND);
+            }
+            generalUserProfileByEmail.setEmail(email);
+
+        }
+
+        if (!mobile.equals(generalUserProfileByEmail.getMobile())) {
+            isProfileUpdated = true;
+            generalUserProfileByEmail.setMobile(mobile);
+
+        }
+
+
+        if (country != generalUserProfileByEmail.getCountry().getId()) {
+            isProfileUpdated = true;
+            Country countryById = countryRepository.getCountryById(country);
+            generalUserProfileByEmail.setCountry(countryById);
+
+        }
+
+        if (image != null && !image.isEmpty()) {
+            if (!image.getContentType().startsWith("image/") || !image.getOriginalFilename().matches(".*\\.(jpg|jpeg|png|gif|bmp|webp)$")) {
+                throw new ErrorException("Invalid image file type or extension. Only image files are allowed.", VarList.RSP_NO_DATA_FOUND);
+            }
+            try {
+                FileUploadResponse imageUploadResponse = FileUploadUtil.saveFile(image, "profile-images");
+                generalUserProfileByEmail.setProfileImg(imageUploadResponse.getUrl());
+                isProfileUpdated = true;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+
+
+        if (isProfileUpdated) {
+            generalUserProfileRepository.save(generalUserProfileByEmail);
+            return changeToken(generalUserProfileByEmail);
+
+        } else {
+            throw new ErrorException("Change Details To Update The Profile", VarList.RSP_NO_DATA_FOUND);
+        }
     }
 
 
@@ -337,7 +442,9 @@ public class UserProfileServiceImpl implements UserProfileService {
         }
 
     }
+
     private String token;
+
     @Override
     public UserLoginResponse updateUserByEmail(UserUpdateProfileRequest userUpdateProfileRequest) {
 
@@ -352,7 +459,7 @@ public class UserProfileServiceImpl implements UserProfileService {
 
 
         if (firstName == null || firstName.isEmpty() || lastName == null || lastName.isEmpty() || email == null || email.isEmpty() || mobile == null
-                || mobile.isEmpty() || country == 0 )
+                || mobile.isEmpty() || country == 0)
             throw new ErrorException("Invalid request", VarList.RSP_NO_DATA_FOUND);
 
         if (generalUserProfileByEmail == null)
@@ -374,6 +481,10 @@ public class UserProfileServiceImpl implements UserProfileService {
         }
         if (!email.equals(generalUserProfileByEmail.getEmail())) {
             isProfileUpdated = true;
+            GeneralUserProfile alreadyExsitingEmail = generalUserProfileRepository.getGeneralUserProfileByEmail(email);
+            if (alreadyExsitingEmail != null) {
+                throw new ErrorException("Added Email Already Registred ", VarList.RSP_NO_DATA_FOUND);
+            }
             generalUserProfileByEmail.setEmail(email);
 
         }
@@ -383,8 +494,6 @@ public class UserProfileServiceImpl implements UserProfileService {
             generalUserProfileByEmail.setMobile(mobile);
 
         }
-
-
 
 
         if (country != generalUserProfileByEmail.getCountry().getId()) {
@@ -419,10 +528,10 @@ public class UserProfileServiceImpl implements UserProfileService {
 
     }
 
-    public UserLoginResponse changeToken(GeneralUserProfile generalUserProfile){
+    public UserLoginResponse changeToken(GeneralUserProfile generalUserProfile) {
 
         UserDetails userDetails = userDetailsServicePassword.loadUserByUsername(generalUserProfile.getEmail());
-        if(userDetails==null){
+        if (userDetails == null) {
             throw new ErrorException("Change Details To Update The Profile", VarList.RSP_NO_DATA_FOUND);
         }
         try {

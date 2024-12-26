@@ -41,4 +41,7 @@ public class StudentHasCourse {
     @Lob
     @Column(name = "description")
     private String description;
+
+    @Column(name = "admin_status", columnDefinition = "TINYINT DEFAULT 0")
+    private Byte adminStatus;
 }

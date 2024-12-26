@@ -29,4 +29,8 @@ public interface UserProfileService {
     UserProfileResponse studentGetUserProfileByEmail();
 
     UserLoginResponse changeTheStudentPassword(ChangePasswordRequest changePasswordRequest);
+
+    UserProfileResponse adminGetUserProfileByEmail();
+
+    UserLoginResponse adminUpdateProfile(UserUpdateProfileRequest userUpdateProfileRequest);
 }
