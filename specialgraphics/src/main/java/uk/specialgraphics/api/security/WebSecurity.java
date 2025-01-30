@@ -50,12 +50,16 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                         "/authentication/student",
                         "/authentication/admin",
                         "/register/add",
+                        "/register/forgotPassword",
+                        "/register/vericodeforgotpassword/{email}",
                         "/country/getAllCountries",
                         "/api/files/upload",
                         "/register/add",
                         "/course/getAllCourses",
                         "/videoStreming/video",
-                        "/course/getCourseDetailsByCourseCode/{courseCode}"
+                        "/course/getCourseDetailsByCourseCode/{courseCode}",
+                "/register/verify/{email}/{code}"
+
 
                 ).permitAll().
                 // all other requests need to be authenticated

@@ -32,6 +32,11 @@ public class PurchaseController {
         return purchaseService.verifyStudentOwnCourse(courseCode, offerCode);
     }
 
+    @GetMapping("/adminAddCourseToStudent/{course}/{email}")
+    public SuccessResponse adminAddCourseToStudent(@PathVariable String email,@PathVariable String course) {
+        return purchaseService.addCoursesToStudent(email, course);
+    }
+
     @GetMapping("/getAllPurchasesDetails")
     public ResponseEntity<Page<StudentHasCourse>> getAllStudents(
             @RequestParam(defaultValue = "0") int page,

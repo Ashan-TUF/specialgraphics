@@ -11,7 +11,7 @@
 	<groupId>us.specialgraphics</groupId>
 	<artifactId>specialgraphics-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-<!--	<packaging>war</packaging>-->
+<!--	<packaging>jar</packaging>-->
 	<name>specialgraphics</name>
 	<description>special-graphics</description>
 	<properties>
@@ -94,6 +94,14 @@
 			<artifactId>commons-io</artifactId>
 			<version>2.4</version>
 		</dependency>
+
+<!--		email dependency-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+
+		<!--		email dependency-->
 	</dependencies>
 
 	<build>

@@ -12,4 +12,6 @@ public interface CourseSectionRepository extends JpaRepository<CourseSection, In
     CourseSection getCourseSectionBySectionCode(String courseSectionCode);
 
     List<CourseSection> getCourseSectionByCourse(Course course);
+
+    CourseSection getCourseSectionBySectionName(String sectionName);
 }

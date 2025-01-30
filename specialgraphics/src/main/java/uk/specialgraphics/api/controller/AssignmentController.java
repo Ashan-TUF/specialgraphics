@@ -51,6 +51,12 @@ public class AssignmentController {
         return assignmentService.downloadAssignment(name);
     }
 
+    @GetMapping("/admindownloadZipFile/zip/{name}")
+    public ResponseEntity<Resource> admindownloadZipFile(@PathVariable String name) {
+
+        return assignmentService.admindownloadAssignment(name);
+    }
+
     @PostMapping("/uploadZipFile")
     public SuccessResponse uploadZipFile(UploadZipRequest uploadZipRequest) {
 

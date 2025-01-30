@@ -1,7 +1,7 @@
 package uk.specialgraphics.api.config;
 
 public class Config {
-    public static final String UPLOAD_URL = "F:/sp2/Upload/";
+    public static final String UPLOAD_URL = "/home/specialgraphics-classesapp/htdocs/classesapp.specialgraphics.us/Upload/";
     public static final String VIDEOS_UPLOAD_URL = "videos/";
     public static final String IMAGES_UPLOAD_URL = "images/";
     public static final String ZIP_UPLOAD_URL = "zip/";

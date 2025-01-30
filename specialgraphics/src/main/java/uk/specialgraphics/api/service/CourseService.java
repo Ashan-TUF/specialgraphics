@@ -45,12 +45,18 @@ public interface CourseService {
 
     SuccessResponse addZip(CurriculumItemFileUploadRequest fileUploadRequest);
 
-    UserQuizesInCurriculumItemResponse getUserQuizesByCurriculumItemCode(String courseCode,String curiyculumCode);
+    SuccessResponse updateZip(CurriculumItemFileUpdateRequest curriculumItemFileUpdateRequest);
+    UserQuizesInCurriculumItemResponse getUserQuizesByCurriculumItemCode(String courseCode, String curiyculumCode);
 
     SuccessResponse studentSubmitMcq(UserMcqRequest userMcqRequest);
 
     UserPerformeQuizeAndAnswersResponse getUserAnswersForQuizesByCurriculumItemCode(String curiyculumCode);
 
-    UserPerformeQuizeAndAnswersResponse getUserAnswersForQuizesByCurriculumItemCode(String curiyculumCode,String email);
+    UserPerformeQuizeAndAnswersResponse getUserAnswersForQuizesByCurriculumItemCode(String curiyculumCode, String email);
 
+    SuccessResponse updateSectionTitleResponse(UpdateSectionTitleRequest updateSectionTitleRequest);
+
+    SuccessResponse updateSectionCurriItem(UpdateSectionCurriItemRequest updateSectionCurriItemRequest);
+
+SuccessResponse updateVideo(UpdateVideoRequest updateVideoRequest);
 }

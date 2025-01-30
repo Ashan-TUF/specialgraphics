@@ -458,6 +458,7 @@ public class CourseServiceImpl implements CourseService {
                 CurriculumItemFileResponse curriculumItemFileResponse = new CurriculumItemFileResponse();
                 curriculumItemFileResponse.setTitle(curriculumItemFile.getTitle());
                 curriculumItemFileResponse.setUrl(curriculumItemFile.getUrl());
+                curriculumItemFileResponse.setId(curriculumItemFile.getId());
                 curriculumItemFileResponse.setVideoLength(curriculumItemFile.getVideoLength());
                 curriculumItemFileResponse.setCurriculumItemFileType(curriculumItemFile.getCurriculumItemFileTypes());
                 curriculumItemFileResponses.add(curriculumItemFileResponse);
@@ -655,47 +656,56 @@ public class CourseServiceImpl implements CourseService {
         QuizItems quizItemsByCode = quizeItemRepository.getQuizItemsByCode(questionItemCode);
         if (quizItemsByCode == null) throw new ErrorException("Invalid Quiz Item ", VarList.RSP_NO_DATA_FOUND);
 
-        ArrayList<Answers> answersList = new ArrayList<>();
-        Answers answers1 = new Answers();
-        answers1.setAnswer(answer1);
-        if (correctAnswer == 1) {
-            answers1.setCorrect(true);
-        } else {
-            answers1.setCorrect(false);
-        }
-        answers1.setQuizItems(quizItemsByCode);
-        answersList.add(answers1);
+        int answerNumber = 1;
+        List<Answers> allByQuizItems = answerRepository.getAllByQuizItems(quizItemsByCode);
+        if (allByQuizItems != null) {
+            for (Answers answer : allByQuizItems) {
+                if (answerNumber == 1) {
+                    answer.setAnswer(answer1);
+                    if (correctAnswer == 1) {
+                        answer.setCorrect(true);
+                    } else {
+                        answer.setCorrect(false);
+                    }
+                    answerRepository.save(answer);
 
+                } else if (answerNumber == 2) {
+                    if (correctAnswer == 2) {
+                        answer.setCorrect(true);
+                    } else {
+                        answer.setCorrect(false);
+                    }
 
-        Answers answers2 = new Answers();
-        answers2.setAnswer(answer2);
-        if (correctAnswer == 2) {
-            answers2.setCorrect(true);
-        } else {
-            answers2.setCorrect(false);
-        }
-        answers2.setQuizItems(quizItemsByCode);
-        answersList.add(answers2);
-        Answers answers3 = new Answers();
-        answers3.setAnswer(answer3);
-        if (correctAnswer == 3) {
-            answers3.setCorrect(true);
-        } else {
-            answers3.setCorrect(false);
-        }
-        answers3.setQuizItems(quizItemsByCode);
-        answersList.add(answers3);
-        Answers answers4 = new Answers();
-        answers4.setAnswer(answer4);
-        if (correctAnswer == 4) {
-            answers4.setCorrect(true);
-        } else {
-            answers4.setCorrect(false);
-        }
-        answers4.setQuizItems(quizItemsByCode);
-        answersList.add(answers4);
-        quizItemsByCode.setAnswers(answersList);
+                    answer.setAnswer(answer2);
+                    answerRepository.save(answer);
+                } else if (answerNumber == 3) {
+                    if (correctAnswer == 3) {
+                        answer.setCorrect(true);
+                    } else {
+                        answer.setCorrect(false);
+                    }
 
+                    answer.setAnswer(answer3);
+                    answerRepository.save(answer);
+                } else {
+                    if (correctAnswer == 4) {
+                        answer.setCorrect(true);
+                    } else {
+                        answer.setCorrect(false);
+                    }
+                    answer.setAnswer(answer4);
+                    answerRepository.save(answer);
+
+                }
+                if (answerNumber == 4) {
+                    break;
+                }
+                answerNumber++;
+
+            }
+        }
+
+        quizItemsByCode.setQuestion(question);
         quizeItemRepository.save(quizItemsByCode);
 
         SuccessResponse successResponse = new SuccessResponse();
@@ -1017,6 +1027,51 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    public SuccessResponse updateZip(CurriculumItemFileUpdateRequest curriculumItemFileUpdateRequest) {
+        authentication();
+        String title = curriculumItemFileUpdateRequest.getTitle();
+        String id = curriculumItemFileUpdateRequest.getId();
+        MultipartFile zipFile = curriculumItemFileUpdateRequest.getZip();
+
+        if (title == null || title.isEmpty() || id == null || id.isEmpty())
+            throw new ErrorException("Invalid request", VarList.RSP_NO_DATA_FOUND);
+
+        CurriculumItemZipFile curriculumItemZipFileById = curriculumItemZipFileRepository.getCurriculumItemZipFileById(Integer.parseInt(id));
+        if (curriculumItemZipFileById == null) {
+            throw new ErrorException("Invalid Id", VarList.RSP_NO_DATA_FOUND);
+        }
+
+        boolean changeStat = false;
+        if (!title.equals(curriculumItemZipFileById.getTitle())) {
+            changeStat = true;
+            curriculumItemZipFileById.setTitle(title);
+        }
+
+        if (zipFile != null && !zipFile.isEmpty()) {
+            try {
+                FileUploadResponse imageUploadResponse = FileUploadUtil.saveFile(zipFile, "zip");
+                curriculumItemZipFileById.setUrl(imageUploadResponse.getUrl());
+                changeStat = true;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        if (changeStat) {
+            curriculumItemZipFileRepository.save(curriculumItemZipFileById);
+
+            SuccessResponse successResponse = new SuccessResponse();
+            successResponse.setVariable("200");
+            successResponse.setMessage("Updated Success");
+            return successResponse;
+        } else {
+            throw new ErrorException("Same Details", VarList.RSP_NO_DATA_FOUND);
+        }
+
+
+    }
+
+    @Override
     public UserQuizesInCurriculumItemResponse getUserQuizesByCurriculumItemCode(String courseCode, String curiyculumCode) {
 
         GeneralUserProfile generalUserProfile = userAuthentication();
@@ -1170,6 +1225,144 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    public SuccessResponse updateSectionTitleResponse(UpdateSectionTitleRequest updateSectionTitleRequest) {
+        authentication();
+        String sectionCode = updateSectionTitleRequest.getSectionCode();
+        String title = updateSectionTitleRequest.getTitle();
+
+        if (sectionCode == null || sectionCode.isEmpty() || title == null || title.isEmpty()) {
+            throw new ErrorException("Invalid Request", VarList.RSP_NO_DATA_FOUND);
+        }
+        CourseSection courseSectionBySectionCode = courseSectionRepository.getCourseSectionBySectionCode(sectionCode);
+        if (courseSectionBySectionCode == null) {
+            throw new ErrorException("Invalid SectionCode", VarList.RSP_NO_DATA_FOUND);
+        }
+        if (courseSectionBySectionCode.getSectionName().equals(title)) {
+            throw new ErrorException("Same Lesson Name", VarList.RSP_NO_DATA_FOUND);
+        }
+        CourseSection courseSectionBySectionName = courseSectionRepository.getCourseSectionBySectionName(title);
+
+        if (courseSectionBySectionName != null) {
+            if (courseSectionBySectionName.getSectionCode().equals(sectionCode)) {
+                throw new ErrorException("Lesson Name Already Registred", VarList.RSP_NO_DATA_FOUND);
+            }
+        }
+
+        courseSectionBySectionCode.setSectionName(title);
+
+        courseSectionRepository.save(courseSectionBySectionCode);
+
+        SuccessResponse successResponse = new SuccessResponse();
+        successResponse.setVariable("200");
+        successResponse.setMessage("Lesson Name Change Success");
+        return successResponse;
+    }
+
+    @Override
+    public SuccessResponse updateSectionCurriItem(UpdateSectionCurriItemRequest updateSectionCurriItemRequest) {
+
+        authentication();
+        String sectionCode = updateSectionCurriItemRequest.getSectionCode();
+        String title = updateSectionCurriItemRequest.getTitle();
+        String description = updateSectionCurriItemRequest.getDescription();
+        String curriCode = updateSectionCurriItemRequest.getCurriCode();
+
+        if (sectionCode == null || sectionCode.isEmpty() || title == null || title.isEmpty() || description == null || description.isEmpty() || curriCode == null || curriCode.isEmpty()) {
+            throw new ErrorException("Invalid Request", VarList.RSP_NO_DATA_FOUND);
+        }
+        CourseSection courseSectionBySectionCode = courseSectionRepository.getCourseSectionBySectionCode(sectionCode);
+        if (courseSectionBySectionCode == null) {
+            throw new ErrorException("Invalid SectionCode", VarList.RSP_NO_DATA_FOUND);
+        }
+        SectionCurriculumItem sectionCurriculumItemByCode = sectionCurriculumItemRepository.getSectionCurriculumItemByCode(curriCode);
+        if (sectionCurriculumItemByCode == null) {
+            throw new ErrorException("Invalid Curriculum Item Code", VarList.RSP_NO_DATA_FOUND);
+        }
+
+        sectionCurriculumItemByCode.setTitle(title);
+        sectionCurriculumItemByCode.setDescription(description);
+
+        sectionCurriculumItemRepository.save(sectionCurriculumItemByCode);
+
+        SuccessResponse successResponse = new SuccessResponse();
+        successResponse.setVariable("200");
+        successResponse.setMessage("Lesson Item Updated Success");
+        return successResponse;
+    }
+
+    @Override
+    public SuccessResponse updateVideo(UpdateVideoRequest updateVideoRequest) {
+
+        authentication();
+        final String courseCode = updateVideoRequest.getCourseCode();
+        int id = updateVideoRequest.getId();
+        final String curriculumItemCode = updateVideoRequest.getCurriculumItemCode();
+        final String generatedVideoName = updateVideoRequest.getGeneratedVideoName();
+        final Double videoLength = updateVideoRequest.getVideoLength();
+        final String originalVideoName = updateVideoRequest.getOriginalVideoName();
+
+        if (originalVideoName == null || originalVideoName.isEmpty() || id == 0) {
+            throw new ErrorException("Invalid Request", VarList.RSP_NO_DATA_FOUND);
+        }
+
+        CurriculumItemFile referenceById = curriculumItemFileRepository.getReferenceById(id);
+
+        boolean changStat = false;
+        if (generatedVideoName != null) {
+            referenceById.setUrl(Config.VIDEOS_UPLOAD_URL + generatedVideoName);
+            referenceById.setVideoLength(videoLength);
+            changStat = true;
+        }
+
+        if (!originalVideoName.equals(referenceById.getTitle())) {
+            changStat = true;
+            referenceById.setTitle(originalVideoName);
+        }
+
+        if (changStat) {
+            SuccessResponse successResponse = new SuccessResponse();
+            successResponse.setMessage("Lecture video Updated successfully");
+            successResponse.setVariable(VarList.RSP_SUCCESS);
+            curriculumItemFileRepository.save(referenceById);
+            return successResponse;
+
+
+        } else {
+            throw new ErrorException("Change Properties to update the video", VarList.RSP_NO_DATA_FOUND);
+
+        }
+
+
+//
+//        CurriculumItemFileType curriculumItemFileType = curriculumItemFileTypeRepository.getCurriculumItemFileTypeById(1);
+//
+//        if (curriculumItemFileType == null)
+//            throw new ErrorException("Curriculum item file type not found", VarList.RSP_NO_DATA_FOUND);
+//
+//
+//        if (courseCode == null || courseCode.isEmpty() || curriculumItemCode == null || curriculumItemCode.isEmpty() || generatedVideoName == null || generatedVideoName.isEmpty() || videoLength == null || videoLength.toString().isEmpty() || originalVideoName == null || originalVideoName.isEmpty())
+//            throw new ErrorException("Invalid request", VarList.RSP_NO_DATA_FOUND);
+//        Course course = courseRepository.getCourseByCode(courseCode);
+//        if (course == null) throw new ErrorException("Invalid course code", VarList.RSP_NO_DATA_FOUND);
+//        SectionCurriculumItem sectionCurriculumItem = sectionCurriculumItemRepository.getSectionCurriculumItemByCode(curriculumItemCode);
+//        if (sectionCurriculumItem == null)
+//            throw new ErrorException("Invalid curriculum item code", VarList.RSP_NO_DATA_FOUND);
+//        if (!sectionCurriculumItem.getCourseSection().getCourse().equals(course))
+//            throw new ErrorException("Section Curriculum Item Not applicable to course.", VarList.RSP_NO_DATA_FOUND);
+//
+//
+//        CurriculumItemFile curriculumItemFile = new CurriculumItemFile();
+//        curriculumItemFile.setTitle(originalVideoName);
+//        curriculumItemFile.setUrl(Config.VIDEOS_UPLOAD_URL + generatedVideoName);
+//        curriculumItemFile.setVideoLength(videoLength);
+//        curriculumItemFile.setSectionCurriculumItem(sectionCurriculumItem);
+//        curriculumItemFile.setCurriculumItemFileTypes(curriculumItemFileType);
+//        curriculumItemFileRepository.save(curriculumItemFile);
+
+
+    }
+
+    @Override
     public SuccessResponse studentSubmitMcq(UserMcqRequest userMcqRequest) {
         GeneralUserProfile generalUserProfile = userAuthentication();
         List<UserSubmitMcqItemRequest> userSubmitMcqItemRequest = userMcqRequest.getUserSubmitMcqItemRequest();
@@ -1227,7 +1420,7 @@ public class CourseServiceImpl implements CourseService {
                         List<CurriculumItemZipFile> curriculumItemFileBySectionCurriculumItem = curriculumItemZipFileRepository.getCurriculumItemFileBySectionCurriculumItem(sectionCurriculumItem);
                         if (curriculumItemFileBySectionCurriculumItem != null && !curriculumItemFileBySectionCurriculumItem.isEmpty()) {
                             CurriculumItemZipFile curriculumItemZipFile = curriculumItemFileBySectionCurriculumItem.get(curriculumItemFileBySectionCurriculumItem.size() - 1);
-                            if (curriculumItemZipFile!=null) {
+                            if (curriculumItemZipFile != null) {
                                 lessonComplete = true;
                             } else {
                                 lessonComplete = false;
@@ -1235,7 +1428,7 @@ public class CourseServiceImpl implements CourseService {
                         }
 
                         if (lessonComplete) {
-                            StudentHasCourse studentHasCourseByCourseAndGeneralUserProfile = studentHasCourseRepository.getStudentHasCourseByCourseAndGeneralUserProfile(course,generalUserProfile);
+                            StudentHasCourse studentHasCourseByCourseAndGeneralUserProfile = studentHasCourseRepository.getStudentHasCourseByCourseAndGeneralUserProfile(course, generalUserProfile);
                             studentHasCourseByCourseAndGeneralUserProfile.setIsComplete((byte) 1);
                             studentHasCourseRepository.save(studentHasCourseByCourseAndGeneralUserProfile);
                         }

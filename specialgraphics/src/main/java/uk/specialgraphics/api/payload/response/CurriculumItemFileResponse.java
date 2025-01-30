@@ -7,6 +7,7 @@ import uk.specialgraphics.api.entity.CurriculumItemFileType;
 @Data
 @ToString
 public class CurriculumItemFileResponse {
+    private int id;
     private String title;
     private String url;
     private double videoLength;

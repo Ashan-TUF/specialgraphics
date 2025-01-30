@@ -125,6 +125,28 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
+    public ResponseEntity<Resource> admindownloadAssignment(String name) {
+        authentication();
+        try {
+            // Path to the ZIP file (replace this with the actual file path)
+            String url = UPLOAD_URL + ZIP_UPLOAD_URL + name;
+            Path path = Paths.get(url);
+            Resource resource = new UrlResource(path.toUri());
+
+            if (resource.exists() || resource.isReadable()) {
+                // Return the ZIP file with the correct headers
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                        .body(resource);
+            } else {
+                return ResponseEntity.status(404).build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+    @Override
     public ResponseEntity<Resource> downloadUserAssignment(String name) {
         authentication();
         try {
@@ -208,6 +230,13 @@ public class AssignmentServiceImpl implements AssignmentService {
             userZipFileById.setMarks(marks);
             userZipFileById.setStatus(true);
             userFileRepository.save(userZipFileById);
+            try {
+
+            FileUploadResponse imageUploadResponse = FileUploadUtil.deleteFile(userZipFileById.getUrl());
+            }catch (Exception exception){
+
+            }
+
 
             Course course = userZipFileById.getCurriculumItemZipFile().getSectionCurriculumItem().getCourseSection().getCourse();
 

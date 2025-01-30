@@ -15,6 +15,9 @@ import uk.specialgraphics.api.security.JwtUserDetailsServicePassword;
 import uk.specialgraphics.api.service.LoginService;
 import uk.specialgraphics.api.utils.VarList;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+
 @Service
 @Slf4j
 public class LoginServiceImpl implements LoginService {
@@ -37,7 +40,7 @@ public class LoginServiceImpl implements LoginService {
     private String token;
 
     @Override
-    public UserLoginResponse userLoginWithPassword(UserLoginRequset request) {
+    public UserLoginResponse userLoginWithPassword(UserLoginRequset request, HttpServletResponse response) {
         final String email = request.getEmail();
         final String password = request.getPassword();
 
@@ -48,6 +51,11 @@ public class LoginServiceImpl implements LoginService {
 
         if (gup == null)
             throw new ErrorException("Invalid credentials", VarList.RSP_NO_DATA_FOUND);
+        if (gup.getGupType().getId() != 2)
+            throw new ErrorException("You are Not A User Try The Admin Panel Login", VarList.RSP_NO_DATA_FOUND);
+
+        if (gup.getIsActive() != 1)
+            throw new ErrorException("Your User account deactivated.", VarList.RSP_NO_DATA_FOUND);
 
 
         UserDetails userDetails = loadUserDetailsByUsername(gup, password, email);
@@ -58,11 +66,32 @@ public class LoginServiceImpl implements LoginService {
             throw new RuntimeException("Token generation failed");
         }
 
+
+        boolean remember = request.remember;
+        if(remember){
+            Cookie usernameCookie = new Cookie("email_learner", email);
+            usernameCookie.setHttpOnly(true); // Prevent JavaScript access
+            usernameCookie.setPath("/");     // Available site-wide
+            usernameCookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
+
+            Cookie authCookie = new Cookie("pass_learner", password);
+            authCookie.setHttpOnly(true);
+            authCookie.setPath("/");
+            authCookie.setMaxAge(7 * 24 * 60 * 60);
+
+            // Add cookies to the response
+            response.addCookie(usernameCookie);
+            response.addCookie(authCookie);
+
+        }
+
+
+
         return createUserLoginResponse(gup, token);
     }
 
     @Override
-    public UserLoginResponse adminLoginWithPassword(UserLoginRequset request) {
+    public UserLoginResponse adminLoginWithPassword(UserLoginRequset request,HttpServletResponse response) {
         final String email = request.getEmail();
         final String password = request.getPassword();
 
@@ -87,6 +116,25 @@ public class LoginServiceImpl implements LoginService {
             token = jwtTokenUtil.generateToken(userDetails);
         } catch (Exception e) {
             throw new RuntimeException("Token generation failed");
+        }
+
+
+        boolean remember = request.remember;
+        if(remember){
+            Cookie usernameCookie = new Cookie("email_admin", email);
+            usernameCookie.setHttpOnly(true); // Prevent JavaScript access
+            usernameCookie.setPath("/");     // Available site-wide
+            usernameCookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
+
+            Cookie authCookie = new Cookie("pass_admin", password);
+            authCookie.setHttpOnly(true);
+            authCookie.setPath("/");
+            authCookie.setMaxAge(7 * 24 * 60 * 60);
+
+            // Add cookies to the response
+            response.addCookie(usernameCookie);
+            response.addCookie(authCookie);
+
         }
 
         return createUserLoginResponse(gup, token);

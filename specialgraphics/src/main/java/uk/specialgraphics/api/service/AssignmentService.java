@@ -14,6 +14,7 @@ import java.util.List;
 public interface AssignmentService {
 
     ResponseEntity<Resource> downloadAssignment(String name);
+    ResponseEntity<Resource> admindownloadAssignment(String name);
     ResponseEntity<Resource> downloadUserAssignment(String name);
     SuccessResponse uploadAssignment(UploadZipRequest uploadZipRequest);
     SuccessResponse markStudentAssignmentMarks(int id,double marks);

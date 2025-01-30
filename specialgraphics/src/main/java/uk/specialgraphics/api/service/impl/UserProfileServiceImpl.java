@@ -328,6 +328,35 @@ public class UserProfileServiceImpl implements UserProfileService {
         }
     }
 
+    @Override
+    public UserLoginResponse changeAdminPassword(ChangePasswordRequest changePasswordRequest) {
+        GeneralUserProfile generalUserProfile = authentication();
+        String oldPassword = changePasswordRequest.getOldPassword();
+        String newPassword = changePasswordRequest.getNewPassword();
+        String repeatPassword = changePasswordRequest.getRepeatPassword();
+
+        if (oldPassword == null || oldPassword.isEmpty() || newPassword == null || newPassword.isEmpty() || repeatPassword == null || repeatPassword.isEmpty()) {
+            throw new ErrorException("Invalid Request", VarList.RSP_NO_DATA_FOUND);
+        }
+
+        PasswordEncoderConfig by = new PasswordEncoderConfig();
+
+        if (!by.passwordEncoder().matches(oldPassword, generalUserProfile.getPassword())) {
+            throw new ErrorException("Your Old Password is Incorrect", VarList.RSP_NO_DATA_FOUND);
+        }
+
+        if (!newPassword.equals(repeatPassword)) {
+            throw new ErrorException("Repeat The Password Correctly", VarList.RSP_NO_DATA_FOUND);
+        }
+        String encodedNewPassword = by.passwordEncoder().encode(newPassword);
+        generalUserProfile.setPassword(encodedNewPassword);
+
+        generalUserProfileRepository.save(generalUserProfile);
+        UserLoginResponse userLoginResponse = changeToken(generalUserProfile);
+
+        return userLoginResponse;
+    }
+
 
     @Override
     public SuccessResponse updateUserProfileStatus(String email) {

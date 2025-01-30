@@ -34,7 +34,7 @@ public class FileUploadUtil {
             }
 
             File directory = new File(Config.UPLOAD_URL +  path);
-
+            System.out.println(Config.UPLOAD_URL +  path);
             if (!directory.exists()) {
                 directory.mkdirs();
             }
@@ -44,13 +44,14 @@ public class FileUploadUtil {
             FileUploadResponse fileUploadResponse = new FileUploadResponse();
             fileUploadResponse.setFilename(file.getOriginalFilename());
             fileUploadResponse.setUrl(path + randomFilename);
+            System.out.println(path + randomFilename);
             return fileUploadResponse;
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload the file", e);
         }
     }
     public static FileUploadResponse deleteFile(String filename) {
-        String targetPath = Config.UPLOAD_URL + filename;
+        String targetPath = Config.UPLOAD_URL +filename;
         try {
             Path filePath = Paths.get(targetPath);
             if (Files.exists(filePath)) {

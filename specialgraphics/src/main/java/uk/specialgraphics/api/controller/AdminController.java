@@ -3,6 +3,7 @@ package uk.specialgraphics.api.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import uk.specialgraphics.api.payload.request.ChangePasswordRequest;
 import uk.specialgraphics.api.payload.request.UserUpdateProfileRequest;
 import uk.specialgraphics.api.payload.response.UserLoginResponse;
 import uk.specialgraphics.api.payload.response.UserProfileResponse;
@@ -26,12 +27,17 @@ public class AdminController {
     }
 
     @GetMapping("/adminProfileDetails")
-    public UserProfileResponse studentProfileForUpdate() {
+    public UserProfileResponse adminProfileForUpdate() {
         return userProfileService.adminGetUserProfileByEmail();
     }
 
     @PutMapping("/adminUpdateProfile")
-    public UserLoginResponse studentChangeProfile(UserUpdateProfileRequest userProfileUpdateRequest) {
+    public UserLoginResponse adminChangeProfile(UserUpdateProfileRequest userProfileUpdateRequest) {
         return userProfileService.adminUpdateProfile(userProfileUpdateRequest);
+    }
+
+    @PutMapping("/adminUpdatePassword")
+    public UserLoginResponse adminChangePassword(ChangePasswordRequest changePasswordRequest) {
+        return userProfileService.changeAdminPassword(changePasswordRequest);
     }
 }

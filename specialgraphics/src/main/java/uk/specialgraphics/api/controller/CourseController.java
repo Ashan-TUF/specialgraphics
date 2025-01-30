@@ -106,6 +106,11 @@ public class CourseController {
     public SuccessResponse addFile(CurriculumItemFileUploadRequest fileUploadRequest) {
         return courseService.addZip(fileUploadRequest);
     }
+
+    @PutMapping("/updateFile")
+    public SuccessResponse update(CurriculumItemFileUpdateRequest curriculumItemFileUpdateRequest) {
+        return courseService.updateZip(curriculumItemFileUpdateRequest);
+    }
     @GetMapping("/getUserQuizItemsByCurriculumItemCode/{courseCode}/{curriculumItemCode}")
     public UserQuizesInCurriculumItemResponse getUserMcqQuestions(@PathVariable String courseCode,@PathVariable String curriculumItemCode) {
         return courseService.getUserQuizesByCurriculumItemCode(courseCode,curriculumItemCode);
@@ -126,6 +131,22 @@ public class CourseController {
         return courseService.getUserAnswersForQuizesByCurriculumItemCode(curriculumItemCode,email);
     }
 
+
+    @PutMapping("/updateSectionName")
+    public SuccessResponse updateSectionName(UpdateSectionTitleRequest updateSectionTitleRequest) {
+        return courseService.updateSectionTitleResponse(updateSectionTitleRequest);
+    }
+
+    @PutMapping("/updateSectionCurriculamItem")
+    public SuccessResponse updateSectionCurriculamItem(UpdateSectionCurriItemRequest updateSectionCurriItemRequest) {
+        return courseService.updateSectionCurriItem(updateSectionCurriItemRequest);
+    }
+
+
+    @PutMapping("/updateVideo")
+    public SuccessResponse updateVideo(UpdateVideoRequest updateVideoRequest) {
+        return courseService.updateVideo(updateVideoRequest);
+    }
 
 
 }

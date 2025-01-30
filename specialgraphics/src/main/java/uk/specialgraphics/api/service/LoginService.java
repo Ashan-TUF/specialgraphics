@@ -3,9 +3,11 @@ package uk.specialgraphics.api.service;
 import uk.specialgraphics.api.payload.request.UserLoginRequset;
 import uk.specialgraphics.api.payload.response.UserLoginResponse;
 
-public interface LoginService {
-    UserLoginResponse userLoginWithPassword(UserLoginRequset request);
+import javax.servlet.http.HttpServletResponse;
 
-    UserLoginResponse adminLoginWithPassword(UserLoginRequset request);
+public interface LoginService {
+    UserLoginResponse userLoginWithPassword(UserLoginRequset request, HttpServletResponse response);
+
+    UserLoginResponse adminLoginWithPassword(UserLoginRequset request,HttpServletResponse response);
 
 }

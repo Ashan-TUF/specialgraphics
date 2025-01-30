@@ -33,4 +33,8 @@ public interface UserProfileService {
     UserProfileResponse adminGetUserProfileByEmail();
 
     UserLoginResponse adminUpdateProfile(UserUpdateProfileRequest userUpdateProfileRequest);
+
+    UserLoginResponse changeAdminPassword(ChangePasswordRequest changePasswordRequest);
+
+
 }

@@ -30,17 +30,19 @@ public class PurchaseServiceImpl implements PurchaseService {
     private final PaymentMethodRepository paymentMethodRepository;
     private final StudentHasCourseRepository studentHasCourseRepository;
     private final CouponRepository couponRepository;
+    private final GeneralUserProfileRepository generalUserProfileRepository;
 
     @Autowired
     public PurchaseServiceImpl(UserProfileService userProfileService,
                                CourseRepository courseRepository,
                                PaymentMethodRepository paymentMethodRepository,
-                               StudentHasCourseRepository studentHasCourseRepository, CouponRepository couponRepository) {
+                               StudentHasCourseRepository studentHasCourseRepository, CouponRepository couponRepository,GeneralUserProfileRepository generalUserProfileRepository) {
         this.userProfileService = userProfileService;
         this.courseRepository = courseRepository;
         this.paymentMethodRepository = paymentMethodRepository;
         this.studentHasCourseRepository = studentHasCourseRepository;
         this.couponRepository = couponRepository;
+        this.generalUserProfileRepository=generalUserProfileRepository;
     }
 
     private GeneralUserProfile authentication() {
@@ -117,6 +119,46 @@ public class PurchaseServiceImpl implements PurchaseService {
         successResponse.setMessage("Purchased successfully");
         successResponse.setVariable(VarList.RSP_SUCCESS);
         return successResponse;
+    }
+
+    @Override
+    public SuccessResponse addCoursesToStudent(String StudentEmail, String courseCode) {
+        GeneralUserProfile adminprofile = adminAuthentication();
+
+        if(StudentEmail==null||StudentEmail.isEmpty()||courseCode==null||courseCode.isEmpty()){
+            throw new ErrorException("Invalid Request", VarList.RSP_NO_DATA_FOUND);
+        }
+        Course course = courseRepository.getCourseByCode(courseCode);
+        if(course==null){
+            throw new ErrorException("Invalid Course Code", VarList.RSP_NO_DATA_FOUND);
+        }
+        GeneralUserProfile generalUserProfileByEmail = generalUserProfileRepository.getGeneralUserProfileByEmail(StudentEmail);
+        if(generalUserProfileByEmail==null){
+            throw new ErrorException("Invalid User", VarList.RSP_NO_DATA_FOUND);
+        }
+
+        StudentHasCourse studentHasCourse = studentHasCourseRepository.getStudentHasCourseByCourseAndGeneralUserProfile(course, generalUserProfileByEmail);
+        if (studentHasCourse != null){
+            throw new ErrorException("User Already Enrolled With The Course", VarList.RSP_NO_DATA_FOUND);
+
+        }
+
+        StudentHasCourse studentHasCourseNewAdd = new StudentHasCourse();
+        studentHasCourseNewAdd.setItemCode(UUID.randomUUID().toString());
+        studentHasCourseNewAdd.setTotalPrice(0);
+        studentHasCourseNewAdd.setBuyDate(new Date());
+        studentHasCourseNewAdd.setDescription("Admin Added Course "+adminprofile.getEmail());
+        studentHasCourseNewAdd.setCourse(course);
+        studentHasCourseNewAdd.setGeneralUserProfile(generalUserProfileByEmail);
+        studentHasCourseNewAdd.setIsComplete((byte) 0);
+        studentHasCourseNewAdd.setAdminStatus((byte) 0);
+        studentHasCourseRepository.save(studentHasCourseNewAdd);
+
+        SuccessResponse successResponse = new SuccessResponse();
+        successResponse.setMessage("Course Added successfully");
+        successResponse.setVariable(VarList.RSP_SUCCESS);
+        return successResponse;
+
     }
 
     @Override
