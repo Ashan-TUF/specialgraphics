@@ -163,7 +163,7 @@ public class RegisterServiceImpl implements RegisterService {
                     "<body>" +
                     "    <div class=\"container\">" +
                     "        <!-- Logo -->" +
-                    "        <img src=\"logo-url-here\" alt=\"Company Logo\" class=\"logo\">" +
+                    "        <img src=\"https://class.specialgraphics.us/assets/logoDark.svg\" alt=\"Company Logo\" class=\"logo\">" +
                     "" +
                     "        <!-- Verification Message -->" +
                     "        <h1>Verify Your Account</h1>" +
@@ -172,7 +172,7 @@ public class RegisterServiceImpl implements RegisterService {
                     "        <p>Thank you for registering with us! To complete your account setup, please verify your email by clicking the button below.</p>" +
                     "" +
                     "        <!-- Verify Button -->" +
-                    "        <a href=\"http://localhost/specialClass/verify?verificationCode=" + generalUserProfile.getVerificationCode() +
+                    "        <a href=\"https://class.specialgraphics.us/verify?verificationCode=" + generalUserProfile.getVerificationCode() +
                     "&email=" + generalUserProfile.getEmail() + "\" class=\"verify-button\">Verify Your Account</a>" +
                     "" +
                     "        <!-- Footer -->" +
@@ -298,7 +298,7 @@ public class RegisterServiceImpl implements RegisterService {
                 "<body>\n" +
                 "    <div class=\"container\">\n" +
                 "        <!-- Logo -->\n" +
-                "        <img src=\"logo-url-here\" alt=\"Company Logo\" class=\"logo\">\n" +
+                "        <img src=\"https://class.specialgraphics.us/assets/logoDark.svg\" alt=\"Company Logo\" class=\"logo\">\n" +
                 "\n" +
                 "        <!-- Password Reset Message -->\n" +
                 "        <h1>Reset Your Password</h1>\n" +

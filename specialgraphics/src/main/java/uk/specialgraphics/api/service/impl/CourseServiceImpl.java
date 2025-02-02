@@ -137,6 +137,8 @@ public class CourseServiceImpl implements CourseService {
         course.setCode(UUID.randomUUID().toString());
         course.setCourseTitle(courseTitle);
         course.setPromotionalVideo(video);
+        course.setPoints(points);
+        course.setDescription(description);
         try {
             FileUploadResponse imageUploadResponse = FileUploadUtil.saveFile(courseRequest.getImg(), "course-image");
             course.setImg(imageUploadResponse.getUrl());
